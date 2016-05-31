@@ -1,0 +1,54 @@
+{
+    "name": "fraym/core",
+    "description": "Fraym is an open source content management platform for websites and applications.",
+    "homepage": "http://fraym.org",
+    "keywords": ["fraym","cms","content management system"],
+    "type": "fraym-core",
+    "license": "GPL-2.0+",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "authors": [
+        {
+            "name": "Fraym.org",
+            "email": "info@fraym.org",
+            "homepage": "http://fraym.org",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Hook\\": "Hook/",
+            "Fraym\\": "Fraym/",
+            "Extension\\": "Extension/"
+        },
+        "exclude-from-classmap": ["Tests/", "tests/", "Test/"]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\": "Test/"
+        }
+    },
+    "require": {
+        "fraym/composer-installers": "^1.0",
+        "fraym/default-theme-extension": "^1.0",
+        "fraym/htmleditor-extension": "^1.0",
+        "doctrine/orm": "^2.5",
+        "php-di/php-di": "^5.2",
+        "beberlei/DoctrineExtensions": "^1.0",
+        "werkint/jsmin": "^1.0",
+        "imagine/imagine": "^0.6.3",
+        "stichoza/google-translate-php": "^3.2",
+        "swiftmailer/swiftmailer": "^5.4",
+        "ocramius/proxy-manager": "^1.0",
+        "gedmo/doctrine-extensions": "^2.4",
+        "knplabs/packagist-api": "^1.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.3"
+    },
+    "config": {
+        "preferred-install": "dist",
+        "autoloader-suffix": "Fraym",
+        "vendor-dir": "Vendor"
+    }
+}

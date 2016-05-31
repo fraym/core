@@ -1,0 +1,15 @@
+.DS_Store
+*.idea*
+/Config.php
+Cache/Sessions/*
+Extension/*
+Cache/Pages/*
+Cache/DoctrineProxies/*
+Cache/*
+Vendor/*
+Public/consolidated/*
+Public/images/deposit/*
+!.gitkeep
+composer.lock
+composer-setup.php
+composer.phar
