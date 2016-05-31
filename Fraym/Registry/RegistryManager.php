@@ -340,41 +340,6 @@ class RegistryManager
     }
 
     /**
-     * @param Entity\Registry $registry
-     * @return bool|string
-     */
-    public function buildPackage(Entity\Registry $registry)
-    {
-        $classAnnotation = $this->getRegistryConfig($registry->className);
-
-        $files = [];
-
-        foreach ($classAnnotation->files as $path) {
-            if (is_dir($path)) {
-                $path .= '*';
-            }
-            $files = array_merge($files, $this->fileManager->findFiles($path));
-        }
-
-        $filename = tempnam(sys_get_temp_dir(), 'ext');
-        $zip = new \ZipArchive();
-
-        if ($zip->open($filename, \ZipArchive::CREATE) !== true) {
-            return false;
-        }
-
-        foreach ($files as $file) {
-            if (is_dir($file)) {
-                $zip->addEmptyDir($file);
-            } else {
-                $zip->addFile($file);
-            }
-        }
-        $zip->close();
-        return $filename;
-    }
-
-    /**
      * @param $repositoryKey
      * @return bool
      */

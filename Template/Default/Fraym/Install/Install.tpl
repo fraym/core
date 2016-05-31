@@ -45,36 +45,28 @@
                                 <table class="table table-condensed">
                                     <tbody>
                                         <tr>
-                                            <td>Fraym version</td>
-                                            <td>{\Fraym\Core::VERSION}</td>
-                                        </tr>
-                                        <tr>
                                             <td>PHP version</td>
-                                            <td>{phpversion()}</td>
+                                            <td>{$phpVersion}</td>
                                         </tr>
                                         <tr>
                                             <td>Mod ReWrite enabled</td>
-                                            <td>{if function_exists('apache_get_modules')}{if in_array('mod_rewrite', apache_get_modules())}<span class="green"><i class="fa fa-check"></i> Yes</span>{else}<span class="red"><i class="fa fa-check"></i> No</span>{/if}{else}Can't detect{/if}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>ZipArchive enabled</td>
-                                            <td>{if class_exists('ZipArchive')}<span class="green"><i class="fa fa-check"></i> Yes</span>{else}<span class="red"><i class="fa fa-check"></i> No</span>{/if}</td>
+                                            <td>{if $apacheModules}{if in_array('mod_rewrite', (array)$apacheModules)}<span class="green"><i class="fa fa-check"></i> Yes</span>{else}<span class="red"><i class="fa fa-check"></i> No</span>{/if}{else}Can't detect{/if}</td>
                                         </tr>
                                         <tr>
                                             <td>Open basedir disabled</td>
-                                            <td>{if ini_get('open_basedir')}<span class="red"><i class="fa fa-minus"></i> No</span>{else}<span class="green"><i class="fa fa-check"></i> Yes</span>{/if}</td>
+                                            <td>{if $openBasedir}<span class="red"><i class="fa fa-minus"></i> No</span>{else}<span class="green"><i class="fa fa-check"></i> Yes</span>{/if}</td>
                                         </tr>
                                         <tr>
                                             <td>APCu enabled</td>
-                                            <td>{if extension_loaded('apc') && ini_get('apc.enabled')}<span class="green"><i class="fa fa-check"></i> Yes</span>{else}<span class="orange">No</span>{/if}</td>
+                                            <td>{if $apcEnabled}<span class="green"><i class="fa fa-check"></i> Yes</span>{else}<span class="orange">No</span>{/if}</td>
                                         </tr>
                                         <tr>
                                             <td>OPCache enabled</td>
-                                            <td>{if ini_get('opcache.enable') == '1'}<span class="green"><i class="fa fa-check"></i> Yes</span>{else}<span class="orange">No</span>{/if}</td>
+                                            <td>{if $opcacheEnabled == '1'}<span class="green"><i class="fa fa-check"></i> Yes</span>{else}<span class="orange">No</span>{/if}</td>
                                         </tr>
                                         <tr>
                                             <td>OPCache load comments</td>
-                                            <td>{if ini_get('opcache.load_comments') == '1'}<span class="green"><i class="fa fa-check"></i> Yes</span>{else}{if ini_get('opcache.enable') == '1'}<span class="red">No</span>{else}<span class="orange">No</span>{/if}{/if}</td>
+                                            <td>{if $opcacheCommentsEnabled == '1'}<span class="green"><i class="fa fa-check"></i> Yes</span>{else}{if $opcacheEnabled == '1'}<span class="red">No</span>{else}<span class="orange">No</span>{/if}{/if}</td>
                                         </tr>
                                     </tbody>
                                 </table>

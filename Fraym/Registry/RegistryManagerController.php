@@ -129,26 +129,6 @@ class RegistryManagerController extends \Fraym\Core
     }
 
     /**
-     * @Fraym\Annotation\Route("/fraym/registry/download", name="registryManagerDownload", permission={"\Fraym\User\User"="isAdmin"})
-     */
-    public function downloadPackage()
-    {
-        set_time_limit(0);
-        $repositoryKey = $this->request->get('repositoryKey', '');
-        $registryEntry = $this->db->getRepository('\Fraym\Registry\Entity\Registry')->findOneByRepositoryKey(
-            $repositoryKey
-        );
-        $zipFile = $this->registryManager->buildPackage($registryEntry);
-        $this->response->addHTTPHeader("Content-type: application/zip");
-        $this->response->addHTTPHeader("Content-Disposition: attachment; filename=\"" . $repositoryKey . ".zip\"");
-        $this->response->addHTTPHeader("Content-Transfer-Encoding: binary");
-        $this->response->addHTTPHeader("Content-Length: " . filesize($zipFile));
-        $content = file_get_contents($zipFile);
-        @unlink($zipFile);
-        $this->response->send($content);
-    }
-
-    /**
      * @return bool|mixed|string
      */
     public function repositorySearch()

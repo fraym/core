@@ -9,7 +9,7 @@ System requirements
 -------------------
 
  * Web server (Apache with mod_rewrite recommended)
- * PHP 5.5.0+ with GDlib, ZipArchive
+ * PHP 5.5.0+ with GDlib
  * MySQL 5 and above or MySQL 5.7 and above
 
 
