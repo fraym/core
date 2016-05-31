@@ -6,7 +6,7 @@
  * @license   http://www.opensource.org/licenses/gpl-license.php GNU General Public License, version 2 or later (see the LICENSE file)
  */
 
-chdir(realpath(dirname(__FILE__)));
+chdir(realpath(dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR . '..'));
 
 if (is_file('Config.php')) {
     require 'Config.php';
