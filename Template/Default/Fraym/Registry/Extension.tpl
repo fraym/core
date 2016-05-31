@@ -79,7 +79,6 @@
                             {/if}
                         </td>
                         <td class="text-right">
-                            <a class="btn btn-default btn-xs" href="/fraym/registry/download?id={$extension.id}" target="_blank" title="{_('Download package')}"><i class="fa fa-archive"></i></a>
                             {if $extensionPackages[$extension.repositoryKey]}
                                 {if $extensionPackages[$extension.repositoryKey].getHomepage()}<a class="btn btn-default btn-xs" href="{$extensionPackages[$extension.repositoryKey].getHomepage()}" target="_blank" title="{_('Show project website')}"><i class="fa fa-globe"></i></a>{/if}
                             {/if}

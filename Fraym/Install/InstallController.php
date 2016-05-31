@@ -76,6 +76,22 @@ class InstallController extends \Fraym\Core
             $this->response->sendHTTPStatusCode(404)->send('Fraym is already installed! Delete Config.php to reinstall.');
         }
 
+        $apacheModules = null;
+        $openBasedir = ini_get('open_basedir');
+        $apcEnabled = extension_loaded('apc') && ini_get('apc.enabled');
+        $opcacheEnabled = ini_get('opcache.enable');
+        $opcacheCommentsEnabled = ini_get('opcache.load_comments');
+
+        if(function_exists('apache_get_modules')) {
+            $apacheModules = apache_get_modules();
+        }
+
+        $this->view->assign('phpVersion', phpversion());
+        $this->view->assign('openBasedir', $openBasedir);
+        $this->view->assign('apcEnabled', $apcEnabled);
+        $this->view->assign('opcacheEnabled', $opcacheEnabled);
+        $this->view->assign('opcacheCommentsEnabled', $opcacheCommentsEnabled);
+        $this->view->assign('apacheModules', $apacheModules);
         $this->view->assign('timezones', $this->getTimezones());
         $this->view->assign('done', false);
         $this->view->assign('error', false);

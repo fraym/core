@@ -207,5 +207,5 @@ return [
         ],
     ],
     'deletable' => false,
-    'repositoryKey' => 'fraym/fraym'
+    'repositoryKey' => 'fraym/core'
 ];
