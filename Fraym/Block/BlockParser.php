@@ -919,7 +919,7 @@ class BlockParser
     private function createImagePlaceholder($configArr)
     {
         if ($configArr['phfont'] === null) {
-            $defaultFont = 'Public/fonts/arial.ttf';
+            $defaultFont = 'Public/fonts/fraym/arial.ttf';
             if (!is_file($configArr['phfont']) &&
                 is_file($defaultFont)) {
                 $configArr['phfont'] = $defaultFont;
