@@ -112,7 +112,7 @@ class Database
         );
 
         foreach ($entities as $k => $entity) {
-            if (preg_match('@^.*/(tests|test)/?.*$@i', $entity)) {
+            if (preg_match('@^.*/\b(tests|test)\b/?.*$@i', $entity)) {
                 unset($entities[$k]);
             }
         }
