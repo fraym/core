@@ -18,7 +18,7 @@ if (is_file('Config.php')) {
 require 'Vendor/autoload.php';
 
 date_default_timezone_set(TIMEZONE);
-define('APC_ENABLED', extension_loaded('apc') && ini_get('apc.enabled'));
+define('APC_ENABLED', (extension_loaded('apc') || extension_loaded('apcu')) && ini_get('apc.enabled'));
 define('CACHE_DI_PATH', 'Cache/DI');
 define('CACHE_DOCTRINE_PROXY_PATH', 'Cache/DoctrineProxies');
 
