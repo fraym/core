@@ -14,7 +14,6 @@ namespace Fraym\FileManager;
  */
 class FileManager
 {
-
     /**
      * @Inject
      * @var \Fraym\Registry\Config
@@ -373,8 +372,8 @@ class FileManager
             $files[$filename] = [
                 'name' => basename($filename),
                 'path' => $filename,
-                'relativePath' => str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $filename),
-                'publicPath' => str_replace($_SERVER['DOCUMENT_ROOT'], '', $filename),
+                'relativePath' => $this->createRelativePath($filename),
+                'publicPath' => $this->createPublicPath($filename),
                 'lastAccessTimeStamp' => $lastAccess,
                 'isDir' => is_dir($filename),
                 'directorySeparator' => DIRECTORY_SEPARATOR,
@@ -391,6 +390,27 @@ class FileManager
         }
 
         return $files;
+    }
+
+    /**
+     * @param $filename
+     * @return mixed
+     */
+    private function createRelativePath($filename)
+    {
+        return str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $filename);
+    }
+
+    /**
+     * @param $filename
+     * @return mixed|string
+     */
+    private function createPublicPath($filename)
+    {
+        if (strpos($filename, '/') === 0) {
+            return str_replace($_SERVER['DOCUMENT_ROOT'], '', $filename);
+        }
+        return substr($filename, strpos($filename, '/'));
     }
 
     /**
