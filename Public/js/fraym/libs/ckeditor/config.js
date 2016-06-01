@@ -21,6 +21,4 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'colors', items: [ 'TextColor', 'BGColor' ] }
 	];
 	config.allowedContent = true;
-	config.protectedSource.push( /<i[\s\S]*?\>/g );
-	config.protectedSource.push( /<\/i[\s\S]*?\>/g );
 };

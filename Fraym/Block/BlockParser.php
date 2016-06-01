@@ -1347,7 +1347,7 @@ class BlockParser
         if ($menuItemTranslation->externalUrl) {
             $xml->a->addAttribute('target', '_blank');
         }
-        $xml->a->attributes()->href = empty($menuItemTranslation->url) ? '/' : $menuItemTranslation->url;
+        $xml->a->attributes()->href = empty(($menuItemTranslation->url)) ? '/' : $menuItemTranslation->url;
 
         return (string)$xml->a->asXml();
     }
