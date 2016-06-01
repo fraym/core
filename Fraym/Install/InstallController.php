@@ -78,9 +78,9 @@ class InstallController extends \Fraym\Core
 
         $apacheModules = null;
         $openBasedir = ini_get('open_basedir');
-        $apcEnabled = extension_loaded('apc') && ini_get('apc.enabled');
+        $apcEnabled = (extension_loaded('apc') || extension_loaded('apcu')) && ini_get('apc.enabled');
         $opcacheEnabled = ini_get('opcache.enable');
-        $opcacheCommentsEnabled = ini_get('opcache.load_comments');
+        $opcacheCommentsEnabled = ini_get('opcache.load_comments') === false || ini_get('opcache.load_comments') == '1' ? true : false;
 
         if(function_exists('apache_get_modules')) {
             $apacheModules = apache_get_modules();

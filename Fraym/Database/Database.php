@@ -112,7 +112,8 @@ class Database
         );
 
         foreach ($entities as $k => $entity) {
-            if (preg_match('@^.*/\b(tests|test)\b/?.*$@i', $entity)) {
+            $pathWithoutAppDir = str_ireplace($this->core->getApplicationDir(), '', $entity);
+            if (preg_match('@^.*/\b(tests|test)\b/?.*$@i', $pathWithoutAppDir)) {
                 unset($entities[$k]);
             }
         }
