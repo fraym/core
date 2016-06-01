@@ -1,4 +1,4 @@
-Fraym 1.0.6, 2016-06-01
+Fraym 1.0.7, 2016-06-01
 ----------------------
 - Added image link
 - Added dynamic template configurations
