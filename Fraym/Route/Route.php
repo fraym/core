@@ -891,24 +891,34 @@ class Route
                 isset($urlParts['query']) ? '?' . $urlParts['query'] : '');
     }
 
+
     /**
-     * @param Fraym\Menu\Entity\MenuItem $menuItem
+     * @param Fraym\Menu\Entity\MenuItem|Fraym\Menu\Entity\MenuItemTranslation $menuItem
      * @param bool $withProtocol
      * @return string
      */
     public function buildFullUrl($menuItem, $withProtocol = false)
     {
-        if ($menuItem->getCurrentTranslation() &&
-            $menuItem->getCurrentTranslation()->externalUrl) {
-            return $menuItem->getCurrentTranslation()->url;
+        if (get_class($menuItem) === 'Fraym\Menu\Entity\MenuItem') {
+            $translation = $menuItem->getCurrentTranslation();
+        } else {
+            $translation = $menuItem;
         }
+
+        if ($translation &&
+            $translation->externalUrl) {
+            return $translation->url;
+        }
+
         $url = rtrim($this->getCurrentDomain(), '/') . '/' .
-                ($menuItem->getCurrentTranslation() ?
-                ltrim($menuItem->getCurrentTranslation()->url, '/')
+            ($translation ?
+                ltrim($translation->url, '/')
                 : '');
+
         if ($withProtocol === true) {
             $url = ($this->isHttps($menuItem) ? 'https://' : 'http://') . $url;
         }
+
         return $url;
     }
 
