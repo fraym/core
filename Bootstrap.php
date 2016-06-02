@@ -23,7 +23,9 @@ define('CACHE_DI_PATH', 'Cache/DI');
 define('CACHE_DOCTRINE_PROXY_PATH', 'Cache/DoctrineProxies');
 
 function createCacheDir($dir) {
-    mkdir($dir, 0755, true);
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
 }
 
 createCacheDir(CACHE_DI_PATH);
@@ -74,3 +76,5 @@ if (APC_ENABLED) {
 $cache->setNamespace('Fraym_instance_' . FRAYM_INSTANCE);
 $builder->setDefinitionCache($cache);
 $diContainer = $builder->build();
+
+$diContainer->get('Fraym\Cache\Cache')->createCacheFolders();
