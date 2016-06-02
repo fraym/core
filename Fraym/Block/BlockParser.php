@@ -30,12 +30,12 @@ class BlockParser
     private $customBlockTypes = [];
 
     /**
-     * Holds the current parsing block.
+     * Holds the current parsing blocks.
      * Used for view elements with a unique content id.
      *
-     * @var null
+     * @var array
      */
-    private $currentParsingBlockId = null;
+    private $parsingBlockIds = [];
 
     /**
      * all Template placeholders
@@ -423,9 +423,9 @@ class BlockParser
             }
 
             if ($this->block->inEditMode() === false &&
-               (($detection->isMobile() && in_array('mobile', $excluded)) ||
-               ($detection->isTablet() && in_array('tablet', $excluded)) ||
-               ($detection->isTablet() === false && $detection->isMobile() === false && in_array('desktop', $excluded)))
+                (($detection->isMobile() && in_array('mobile', $excluded)) ||
+                    ($detection->isTablet() && in_array('tablet', $excluded)) ||
+                    ($detection->isTablet() === false && $detection->isMobile() === false && in_array('desktop', $excluded)))
             ) {
                 return false;
             }
@@ -455,6 +455,8 @@ class BlockParser
         }
 
         if ($this->getXmlAttr($xml, 'id')) {
+            // interleaved unique content elements -> push element
+            $this->parsingBlockIds[$this->getXmlAttr($xml, 'id')] = $this->getXmlAttr($xml, 'id');
             $this->core->startTimer('blockExecution_' . $this->getXmlAttr($xml, 'id'));
         };
 
@@ -512,7 +514,7 @@ class BlockParser
     private function execBlockOfTypeExtension($xml)
     {
         $blockHtml = '';
-        if(is_object($xml)) {
+        if (is_object($xml)) {
             $ext = $this->db->getRepository('\Fraym\Block\Entity\Extension')->findOneBy(
                 ['class' => $xml->class, 'execMethod' => $xml->method]
             );
@@ -566,6 +568,12 @@ class BlockParser
                 }
                 $editable = $this->getXmlAttr($xml, 'editable');
                 if ($editable === true || $editable === null) {
+
+                    // interleaved unique content elements -> pop last element
+                    if (end($this->parsingBlockIds) === $this->getXmlAttr($xml, 'id')) {
+                        array_pop($this->parsingBlockIds);
+                    }
+
                     $blockHtml = $this->blockController->addBlockInfo($block, $blockHtml, $xml);
                 }
             }
@@ -791,10 +799,10 @@ class BlockParser
 
         if ($this->user->isAdmin()) {
             uasort($blocks, function ($a, $b) {
-               if ($a->position === $b->position) {
-                   return $a->id < $b->id ? 1 : -1;
-               }
-               return $a->position > $b->position ? 1 : -1;
+                if ($a->position === $b->position) {
+                    return $a->id < $b->id ? 1 : -1;
+                }
+                return $a->position > $b->position ? 1 : -1;
             });
         }
 
@@ -816,24 +824,6 @@ class BlockParser
             }
         }
         return $html;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCurrentParsingBlockId()
-    {
-        return $this->currentParsingBlockId;
-    }
-
-    /**
-     * @param $id
-     * @return $this
-     */
-    public function setCurrentParsingBlockId($id)
-    {
-        $this->currentParsingBlockId = $id;
-        return $this;
     }
 
     /**
@@ -1188,7 +1178,7 @@ class BlockParser
         $contentId = $this->getXmlAttr($xml, 'id');
         $unique = $this->getXmlAttr($xml, 'unique') === true ? true : false;
         if ($unique) {
-            $contentId .= '-' . $this->currentParsingBlockId;
+            $contentId .= '-' . end($this->parsingBlockIds);
         }
         $xml->attributes()->id = $contentId;
         return $contentId;

@@ -109,10 +109,12 @@ class BlockController extends \Fraym\Core
             $renderTime = $this->core->stopTimer('blockExecution_' . $this->blockParser->getXmlAttr($xml, 'id'));
         };
 
+        $id = $block && $block->block ? $block->block->id : $this->blockParser->getXmlAttr($xml, 'id');
+
         $this->view->assign('renderTime', $renderTime);
         $this->view->assign('type', $this->blockParser->getXmlAttr($xml, 'type'));
         $this->view->assign('style', $this->blockParser->getXmlAttr($xml, 'style'));
-        $this->view->assign('id', $block && $block->block ? $block->block->id : $this->blockParser->getXmlAttr($xml, 'id'));
+        $this->view->assign('id', $id);
         $this->view->assign('block', $block);
         $this->view->assign('moduleName', $block ? $block->extension->name : '');
         $this->view->assign('content', $html);
@@ -580,7 +582,6 @@ class BlockController extends \Fraym\Core
      */
     public function renderContentBlock($xml)
     {
-        $this->blockParser->setCurrentParsingBlockId($this->blockParser->getXmlAttr($xml, 'id'));
         $this->view->setTemplate('Content');
     }
 }

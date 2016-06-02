@@ -91,9 +91,14 @@ class BlockChangeSetManager
                 $lastChange = clone $block;
             }
             if ($lastChange->type !== Entity\ChangeSet::DELETED) {
+                $changeSetId = $block->id;
                 $this->db->remove($block);
                 $this->db->flush();
                 $block = new Entity\Block();
+                $block->id = $changeSetId;
+                // Disable generator to keep current id
+                $metadata = $this->db->getClassMetaData(get_class($block));
+                $metadata->setIdGeneratorType(\Doctrine\ORM\Mapping\ClassMetadata::GENERATOR_TYPE_NONE);
             }
         }
 
