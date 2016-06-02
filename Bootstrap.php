@@ -22,6 +22,13 @@ define('APC_ENABLED', (extension_loaded('apc') || extension_loaded('apcu')) && i
 define('CACHE_DI_PATH', 'Cache/DI');
 define('CACHE_DOCTRINE_PROXY_PATH', 'Cache/DoctrineProxies');
 
+function createCacheDir($dir) {
+    mkdir($dir, 0755, true);
+}
+
+createCacheDir(CACHE_DI_PATH);
+createCacheDir(CACHE_DOCTRINE_PROXY_PATH);
+
 $builder = new \DI\ContainerBuilder();
 $builder->useAnnotations(true);
 
