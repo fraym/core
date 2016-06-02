@@ -410,6 +410,9 @@ class InstallController extends \Fraym\Core
         define('TIMEZONE', '{$post->timezone}');
         define('IMAGE_PROCESSOR', 'GD');
         define('FRAYM_INSTANCE', '" . sprintf("%u", crc32($this->getApplicationDir())) . "');
+        define('JS_FOLDER', '/js');
+        define('CSS_FOLDER', '/css');
+        define('CONSOLIDATE_FOLDER', '/consolidated');
         if(!defined('ENV')) define('ENV', '{$post->environment}');";
 
         return file_put_contents($this->_configFile, $configContent);
