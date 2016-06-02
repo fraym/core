@@ -377,14 +377,14 @@ class Cache
         $this->fileManager->deleteFolder(self::DIR_CUSTOM_DATA);
         $this->fileManager->deleteFolder('Public' . CONSOLIDATE_FOLDER);
 
-        $this->createCacheFolders();
+        self::createCacheFolders();
     }
 
     /**
      * @param $dir
      * @param int $mode
      */
-    private function createFolder($dir, $mode = 0777) {
+    private static function createFolder($dir, $mode = 0777) {
         if (!is_dir($dir)) {
             mkdir($dir, $mode, true);
         }
@@ -393,10 +393,10 @@ class Cache
     /**
      * Create caching folders
      */
-    public function createCacheFolders() {
-        $this->createFolder(CACHE_DI_PATH);
-        $this->createFolder(CACHE_DOCTRINE_PROXY_PATH);
-        $this->createFolder(self::DIR_PAGES);
-        $this->createFolder('Public' . CONSOLIDATE_FOLDER);
+    public static function createCacheFolders() {
+        self::createFolder(CACHE_DI_PATH);
+        self::createFolder(CACHE_DOCTRINE_PROXY_PATH);
+        self::createFolder(self::DIR_PAGES);
+        self::createFolder('Public' . CONSOLIDATE_FOLDER);
     }
 }

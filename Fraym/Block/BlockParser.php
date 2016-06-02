@@ -527,6 +527,8 @@ class BlockParser
                     if ($return !== false) {
                         $blockHtml = $this->setBlockTemplateWrap($xml);
                     }
+                } else {
+                    error_log('Class not autoloaded: ' . $class);
                 }
             }
         }

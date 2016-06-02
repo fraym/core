@@ -228,20 +228,6 @@ class Core
      */
     public function init($mode = Core::ROUTE_NORMAL)
     {
-        $globalConfigs = [
-            'ENV' => self::ENV_DEVELOPMENT,
-            'JS_FOLDER' => '/js',
-            'CSS_FOLDER' => '/css',
-            'CONSOLIDATE_FOLDER' => '/consolidated',
-            'PROFILER_ENABLED' => false,
-        ];
-
-        foreach ($globalConfigs as $config => $val) {
-            if (!defined($config)) {
-                define($config, $val);
-            }
-        }
-
         if (ENV == self::ENV_DEVELOPMENT) {
             error_reporting(E_ALL | E_STRICT);
             ini_set("display_errors", 1);

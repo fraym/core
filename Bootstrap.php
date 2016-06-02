@@ -22,14 +22,7 @@ define('APC_ENABLED', (extension_loaded('apc') || extension_loaded('apcu')) && i
 define('CACHE_DI_PATH', 'Cache/DI');
 define('CACHE_DOCTRINE_PROXY_PATH', 'Cache/DoctrineProxies');
 
-function createCacheDir($dir) {
-    if (!is_dir($dir)) {
-        mkdir($dir, 0755, true);
-    }
-}
-
-createCacheDir(CACHE_DI_PATH);
-createCacheDir(CACHE_DOCTRINE_PROXY_PATH);
+\Fraym\Cache\Cache::createCacheFolders();
 
 $builder = new \DI\ContainerBuilder();
 $builder->useAnnotations(true);
@@ -37,9 +30,6 @@ $builder->useAnnotations(true);
 if (\Fraym\Core::ENV_STAGING === ENV || \Fraym\Core::ENV_PRODUCTION === ENV) {
     error_reporting(0);
     ini_set("display_errors", 0);
-    if (!is_dir(CACHE_DI_PATH)) {
-        mkdir(CACHE_DI_PATH, 0755);
-    }
     $builder->writeProxiesToFile(true, CACHE_DI_PATH);
     define('GLOBAL_CACHING_ENABLED', true);
 } else {
@@ -76,5 +66,3 @@ if (APC_ENABLED) {
 $cache->setNamespace('Fraym_instance_' . FRAYM_INSTANCE);
 $builder->setDefinitionCache($cache);
 $diContainer = $builder->build();
-
-$diContainer->get('Fraym\Cache\Cache')->createCacheFolders();
