@@ -21,6 +21,9 @@ date_default_timezone_set(TIMEZONE);
 define('APC_ENABLED', (extension_loaded('apc') || extension_loaded('apcu')) && ini_get('apc.enabled'));
 define('CACHE_DI_PATH', 'Cache/DI');
 define('CACHE_DOCTRINE_PROXY_PATH', 'Cache/DoctrineProxies');
+define('JS_FOLDER', '/js');
+define('CSS_FOLDER', '/css');
+define('CONSOLIDATE_FOLDER', '/consolidated');
 
 \Fraym\Cache\Cache::createCacheFolders();
 
