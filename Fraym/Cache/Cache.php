@@ -377,7 +377,7 @@ class Cache
         $this->fileManager->deleteFolder(self::DIR_CUSTOM_DATA);
         $this->fileManager->deleteFolder('Public' . CONSOLIDATE_FOLDER);
 
-        $this->createCacheFolders();
+        self::createCacheFolders();
     }
 
     /**
