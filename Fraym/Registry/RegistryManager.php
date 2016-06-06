@@ -212,12 +212,14 @@ class RegistryManager
         $extensionFiles = $this->fileManager->findFiles(
             $this->core->getApplicationDir() . DIRECTORY_SEPARATOR . 'Extension' . DIRECTORY_SEPARATOR . '*.php'
         );
+
         $files = array_merge($coreFiles, $extensionFiles);
 
         foreach ($files as $file) {
             $classname = basename($file, '.php');
             $namespace = str_ireplace($this->core->getApplicationDir(), '', dirname($file));
             $namespace = str_replace('/', '\\', $namespace) . '\\';
+            $namespace = preg_replace('#^' . preg_quote('\\') . 'Extension' . preg_quote('\\') . '#', '\\Fraym\\Extension\\', $namespace);
             $class = $namespace . $classname;
 
             if (is_file($file)) {
@@ -244,6 +246,7 @@ class RegistryManager
                 }
             }
         }
+
         return $extensions;
     }
 
