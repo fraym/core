@@ -496,7 +496,8 @@ class Template
      */
     public function setView($name)
     {
-        $this->moduleName = $name;
+        // Replace extension namespace for template dir correction
+        $this->moduleName = preg_replace('#^Fraym' . preg_quote('\\') . 'Extension' . preg_quote('\\') . '#', 'Extension\\', $name);
         return $this;
     }
 
