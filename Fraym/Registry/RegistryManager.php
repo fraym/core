@@ -220,6 +220,8 @@ class RegistryManager
             $namespace = str_ireplace($this->core->getApplicationDir(), '', dirname($file));
             $namespace = str_replace('/', '\\', $namespace) . '\\';
             $namespace = preg_replace('#^' . preg_quote('\\') . 'Extension' . preg_quote('\\') . '#', '\\Fraym\\Extension\\', $namespace);
+            $namespace = preg_replace('#^' . preg_quote('\\') . 'Hook' . preg_quote('\\') . '#', '\\Fraym\\Hook\\', $namespace);
+            $namespace = preg_replace('#^' . preg_quote('\\') . 'Test' . preg_quote('\\') . '#', '\\Fraym\\Test\\', $namespace);
             $class = $namespace . $classname;
 
             if (is_file($file)) {
@@ -232,14 +234,22 @@ class RegistryManager
                             '\Fraym\Registry\Entity\Registry'
                         )->findOneByClassName($class);
                         $extensions[$class] = (array)$classAnnotation;
-                        $package = $this->getPackage($classAnnotation->repositoryKey);
-                        if ($package) {
-                            $package = $this->getLatestPackageVersion($package);
-                            $extensions[$class]['package'] = $package->getName();
-                            $extensions[$class]['description'] = $package->getDescription();
-                            $extensions[$class]['version'] = $package->getVersion();
-                            $extensions[$class]['homepage'] = $package->getHomepage();
-                            $extensions[$class]['author'] = $this->getAuthorsFromPackage($package);
+                        if(strpos($classAnnotation->repositoryKey, '/') !== false) {
+                            $package = $this->getPackage($classAnnotation->repositoryKey);
+                            if ($package) {
+                                $package = $this->getLatestPackageVersion($package);
+                                $extensions[$class]['package'] = $package->getName();
+                                $extensions[$class]['description'] = $package->getDescription();
+                                $extensions[$class]['version'] = $package->getVersion();
+                                $extensions[$class]['homepage'] = $package->getHomepage();
+                                $extensions[$class]['author'] = $this->getAuthorsFromPackage($package);
+                            }
+                        } else {
+                            $extensions[$class]['package'] = $classAnnotation->repositoryKey;
+                            $extensions[$class]['description'] = '';
+                            $extensions[$class]['version'] = '0.0.0';
+                            $extensions[$class]['homepage'] = null;
+                            $extensions[$class]['author'] = null;
                         }
                         $extensions[$class]['registred'] = $registryEntry !== null;
                     }
@@ -313,7 +323,7 @@ class RegistryManager
     public function getPackage($packageName)
     {
         $package = null;
-        if (!empty($packageName)) {
+        if (!empty($packageName) && strpos($packageName, '/') !== false) {
             try {
                 $client = new \Packagist\Api\Client();
                 $package = $client->get($packageName);
@@ -455,7 +465,7 @@ class RegistryManager
         $registryEntry->name = $classAnnotation->name;
         $registryEntry->repositoryKey = $classAnnotation->repositoryKey;
 
-        if ($package = $this->getPackage($classAnnotation->repositoryKey)) {
+        if (strpos($classAnnotation->repositoryKey, '/') !== false && $package = $this->getPackage($classAnnotation->repositoryKey)) {
             $package = $this->getLatestPackageVersion($package);
             $registryEntry->version = $package->getVersion();
         } else {

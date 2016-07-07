@@ -17,15 +17,15 @@
     ],
     "autoload": {
         "psr-4": {
-            "Hook\\": "Hook/",
             "Fraym\\": "Fraym/",
-            "Extension\\": "Extension/"
+            "Fraym\\Extension\\": "Extension/",
+            "Fraym\\Hook\\": "Hook/"
         },
         "exclude-from-classmap": ["Tests/", "tests/", "Test/"]
     },
     "autoload-dev": {
         "psr-4": {
-            "Test\\": "Test/"
+            "Fraym\\Test\\": "Test/"
         }
     },
     "require": {

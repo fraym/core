@@ -291,6 +291,9 @@ class Route
             $classname = basename($file, '.php');
             $namespace = str_ireplace($this->core->getApplicationDir(), '', dirname($file));
             $namespace = str_replace('/', '\\', $namespace) . '\\';
+            $namespace = preg_replace('#^' . preg_quote('\\') . 'Extension' . preg_quote('\\') . '#', '\\Fraym\\Extension\\', $namespace);
+            $namespace = preg_replace('#^' . preg_quote('\\') . 'Test' . preg_quote('\\') . '#', '\\Fraym\\Test\\', $namespace);
+            $namespace = preg_replace('#^' . preg_quote('\\') . 'Hook' . preg_quote('\\') . '#', '\\Fraym\\Hook\\', $namespace);
             $class = $namespace . $classname;
 
             if (is_file($file)) {
