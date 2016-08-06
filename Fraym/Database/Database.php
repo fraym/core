@@ -68,6 +68,12 @@ class Database
 
     /**
      * @Inject
+     * @var \Fraym\Cache\Cache
+     */
+    protected $cache;
+
+    /**
+     * @Inject
      * @var \Fraym\Core
      */
     protected $core;
@@ -154,13 +160,7 @@ class Database
 
         $this->createModuleDirCache();
 
-        if (APC_ENABLED && ENV !== \Fraym\Core::ENV_DEVELOPMENT) {
-            $cache = new \Doctrine\Common\Cache\ApcuCache();
-        } else {
-            $cache = new \Doctrine\Common\Cache\ArrayCache;
-        }
-
-        $cache->setNamespace('Fraym_instance_' . FRAYM_INSTANCE);
+        $cache = $this->cache->getCacheProvider();
 
         $config = new \Doctrine\ORM\Configuration;
         $config->setMetadataCacheImpl($cache);
@@ -218,7 +218,7 @@ class Database
 
         $annotationReader = new \Doctrine\Common\Annotations\AnnotationReader();
         $this->cachedAnnotationReader = new \Doctrine\Common\Annotations\CachedReader($annotationReader, $cache);
-        $this->annotationDriver = new \Doctrine\ORM\Mapping\Driver\AnnotationDriver($annotationReader, $modelDirs);
+        $this->annotationDriver = new \Doctrine\ORM\Mapping\Driver\AnnotationDriver($this->cachedAnnotationReader, $modelDirs);
 
         /**
          * Ignore PHP-DI Annotation

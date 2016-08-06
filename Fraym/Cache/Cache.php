@@ -90,6 +90,20 @@ class Cache
     protected $fileManager;
 
     /**
+     * @Inject
+     * @var \Fraym\Response\Response
+     */
+    public $response;
+
+    /**
+     * @return \Doctrine\Common\Cache\ApcuCache|\Doctrine\Common\Cache\ArrayCache|null
+     */
+    public function getCacheProvider() {
+        global $cache;
+        return $cache;
+    }
+
+    /**
      * gets the user permission
      *
      * @return bool    true or false
@@ -121,6 +135,7 @@ class Cache
         $cacheFilenamePhpData = self::DIR_PAGES . $filename . '.cache.config.php';
         $menuItemTranslation = false;
         $domain = false;
+        $httpStatusCode = 200;
         $executedBlocks = [];
 
         if (defined('GLOBAL_CACHING_ENABLED') &&
@@ -156,6 +171,9 @@ class Cache
                         $contents = file_get_contents($cacheFilename);
                         $this->blockParser->setParseCached(true);
                         $content = $this->blockParser->parse($contents, 'outputFilter');
+
+                        $this->response->sendHTTPStatusCode($httpStatusCode);
+
                         echo $this->core->includeScript($content);
                         exit();
                     }
@@ -177,9 +195,10 @@ class Cache
     /**
      * save the output to cache file
      *
-     * @return bool    ture or false
+     * @param int $httpStatusCode
+     * @return bool
      */
-    public function setCacheContent()
+    public function setCacheContent($httpStatusCode = 200)
     {
         if (!is_dir(self::DIR_PAGES)) {
             mkdir(self::DIR_PAGES, 0755, true);
@@ -209,6 +228,7 @@ class Cache
                     $currentMenuItem->toArray()
                 ) . "\n" . 'EOT;' . "\n";
             $phpCode .= '$domain = "' . $this->route->getCurrentDomain() . '";';
+            $phpCode .= '$httpStatusCode = "' . $httpStatusCode . '";';
             $phpCode .= '$executedBlocks = <<<\'EOT\'' . "\n" .
                 json_encode(
                     $this->blockParser->getExecutedBlocks()

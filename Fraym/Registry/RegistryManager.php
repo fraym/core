@@ -76,7 +76,7 @@ class RegistryManager
      */
     public function init()
     {
-        if (APC_ENABLED && ENV !== \Fraym\Core::ENV_DEVELOPMENT) {
+        if (APC_ENABLED) {
             $this->cache = new \Doctrine\Common\Cache\ApcuCache();
         } else {
             $this->cache = new \Doctrine\Common\Cache\ArrayCache;
@@ -234,7 +234,7 @@ class RegistryManager
                             '\Fraym\Registry\Entity\Registry'
                         )->findOneByClassName($class);
                         $extensions[$class] = (array)$classAnnotation;
-                        if(strpos($classAnnotation->repositoryKey, '/') !== false) {
+                        if($classAnnotation->composerPackage === true) {
                             $package = $this->getPackage($classAnnotation->repositoryKey);
                             if ($package) {
                                 $package = $this->getLatestPackageVersion($package);
@@ -323,7 +323,7 @@ class RegistryManager
     public function getPackage($packageName)
     {
         $package = null;
-        if (!empty($packageName) && strpos($packageName, '/') !== false) {
+        if (!empty($packageName)) {
             try {
                 $client = new \Packagist\Api\Client();
                 $package = $client->get($packageName);
@@ -339,7 +339,6 @@ class RegistryManager
     public function updateExtension($repositoryKey)
     {
         $registry = $this->db->getRepository('\Fraym\Registry\Entity\Registry')->findOneByRepositoryKey($repositoryKey);
-
         $classAnnotation = $this->getRegistryConfig($registry->className);
 
         $this->registerClass($registry->className, $registry);
@@ -386,7 +385,7 @@ class RegistryManager
 
     /**
      * Update composer dependencies
-     * 
+     *
      * @param array $packages
      */
     public function composerUpdate($packages = [])
@@ -465,7 +464,7 @@ class RegistryManager
         $registryEntry->name = $classAnnotation->name;
         $registryEntry->repositoryKey = $classAnnotation->repositoryKey;
 
-        if (strpos($classAnnotation->repositoryKey, '/') !== false && $package = $this->getPackage($classAnnotation->repositoryKey)) {
+        if ($classAnnotation->composerPackage === true && ($package = $this->getPackage($classAnnotation->repositoryKey))) {
             $package = $this->getLatestPackageVersion($package);
             $registryEntry->version = $package->getVersion();
         } else {
@@ -674,11 +673,13 @@ class RegistryManager
     {
         $extensionsKeys = [];
         foreach ($extensions as $extension) {
-            $package = $this->getPackage($extension->repositoryKey);
-            if ($package) {
-                $package = $this->getLatestPackageVersion($package);
-                if (version_compare($package->getVersion(), $extension->version) > 0) {
-                    $extensionsKeys[$extension->repositoryKey] = $package;
+            if($extension->composerPackage === true) {
+                $package = $this->getPackage($extension->repositoryKey);
+                if ($package) {
+                    $package = $this->getLatestPackageVersion($package);
+                    if (version_compare($package->getVersion(), $extension->version) > 0) {
+                        $extensionsKeys[$extension->repositoryKey] = $package;
+                    }
                 }
             }
         }
@@ -709,11 +710,15 @@ class RegistryManager
     {
         $packages = [];
         foreach ($extensions as $extension) {
-            $package = $this->getPackage($extension->repositoryKey);
-            if ($package) {
-                $package = $this->getPackageByVersion($package, $extension->version);
-                $package->author = $this->getAuthorsFromPackage($package);
-                $packages[$extension->repositoryKey] = $package;
+            if($extension->composerPackage === true) {
+                $package = $this->getPackage($extension->repositoryKey);
+                if ($package) {
+                    $package = $this->getPackageByVersion($package, $extension->version);
+                    $package->author = $this->getAuthorsFromPackage($package);
+                    $packages[$extension->repositoryKey] = $package;
+                } else {
+                    $packages[$extension->repositoryKey] = null;
+                }
             } else {
                 $packages[$extension->repositoryKey] = null;
             }

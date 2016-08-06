@@ -85,6 +85,13 @@ final class Registry extends Annotation
     public $deletable = true;
 
     /**
+     * If the package is a composer package
+     *
+     * @var bool
+     */
+    public $composerPackage = true;
+
+    /**
      * Package name
      *
      * @var string

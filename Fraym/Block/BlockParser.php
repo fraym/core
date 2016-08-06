@@ -157,6 +157,12 @@ class BlockParser
      */
     public $request;
 
+    /**
+     * @Inject(lazy=true)
+     * @var \Fraym\Image\Editor
+     */
+    protected $imageEditor;
+
     public function setParseCached($val)
     {
         $this->cached = $val;
@@ -461,7 +467,7 @@ class BlockParser
         };
 
         if ($this->getXmlAttr($xml, 'cached') == '1') {
-            $this->db->connect();
+            $this->db->connect()->setUpTranslateable();
         }
 
         $blockType = strtolower($this->getXmlAttr($xml, 'type'));
@@ -905,99 +911,6 @@ class BlockParser
     }
 
     /**
-     * @param $configArr
-     * @return string
-     */
-    private function createImagePlaceholder($configArr)
-    {
-        if ($configArr['phfont'] === null) {
-            $defaultFont = 'Public/fonts/fraym/arial.ttf';
-            if (!is_file($configArr['phfont']) &&
-                is_file($defaultFont)) {
-                $configArr['phfont'] = $defaultFont;
-            } else {
-                trigger_error('Font file not found! Use the phfont attribute to setup a font file.', E_USER_ERROR);
-            }
-        }
-
-        if ($configArr['phwidth'] === null || $configArr['phheight'] === null) {
-            trigger_error('Image placeholder attribute phwidth / phheight not set.', E_USER_NOTICE);
-            $configArr['phwidth'] = $configArr['phheight'] = 100;
-        }
-
-        // If no background color is set, set default
-        if ($configArr['phbgcolor'] === null) {
-            $configArr['phbgcolor'] = 'fff';
-        }
-
-        // If no color is set, set default
-        if ($configArr['phcolor'] === null) {
-            $configArr['phcolor'] = '000';
-        }
-
-        // If no text is set, set default
-        if ($configArr['phtext'] === null) {
-            $configArr['phtext'] = 'Placeholder';
-        }
-
-        // If no font size is set, set default
-        if ($configArr['phfontsize'] === null) {
-            $configArr['phfontsize'] = '16';
-        }
-
-        $fileConfigHash = md5(serialize($configArr));
-        $savePath = $this->getImageSavePath($fileConfigHash);
-
-        if (is_file($savePath)) {
-            return $savePath;
-        }
-
-        /** @var \Imagine\Gd\Imagine $imagine */
-        $imagine = $this->serviceLocator->get('Imagine');
-        $bgBox = new \Imagine\Image\Box($configArr['phwidth'], $configArr['phheight']);
-        $imgColor = new \Imagine\Image\Palette\RGB();
-        $img = $imagine->create($bgBox, $imgColor->color($configArr['phbgcolor']));
-
-        $descriptionBoxImg = new \Imagine\Gd\Font(realpath($configArr['phfont']), $configArr['phfontsize'], $imgColor->color($configArr['phcolor']));
-        $descriptionBoxImg = $descriptionBoxImg->box($configArr['phtext'], 0)->getWidth();
-
-        // set the point to start drawing text, depending on parent image width
-        $descriptionPositionCenter = ceil(($img->getSize()->getWidth() - $descriptionBoxImg) / 2);
-
-        if ($descriptionPositionCenter < 0) {
-            $descriptionPositionCenter = 0;
-        }
-
-        $img->draw()->text(
-            $configArr['phtext'],
-            new \Imagine\Gd\Font(realpath($configArr['phfont']), $configArr['phfontsize'], $imgColor->color($configArr['phcolor'])),
-            new \Imagine\Image\Point($descriptionPositionCenter, $img->getSize()->getHeight() / 2 - ($configArr['phfontsize']/2)),
-            0
-        );
-
-        $img->save($savePath);
-        return $savePath;
-    }
-
-    /**
-     * @param $filename
-     * @param string $ext
-     * @return string
-     */
-    private function getImageSavePath($filename, $ext = 'png')
-    {
-        $convertedImageFileName = trim($this->config->get('IMAGE_PATH')->value, '/');
-
-        if (!is_dir('Public' . DIRECTORY_SEPARATOR . $convertedImageFileName)) {
-            mkdir('Public' . DIRECTORY_SEPARATOR . $convertedImageFileName, 0755, true);
-        }
-
-        $convertedImageFileName .= DIRECTORY_SEPARATOR . $filename . '.' . $ext;
-
-        return 'Public' . DIRECTORY_SEPARATOR . trim($this->fileManager->convertDirSeparator($convertedImageFileName), '/');
-    }
-
-    /**
      * @param $xml
      * @return string
      */
@@ -1029,14 +942,16 @@ class BlockParser
 
         $placeHolderConfig = [
             'phtext' => $this->getXmlAttr($xml, 'phtext'),
-            'phwidth' => $this->getXmlAttr($xml, 'phwidth'),
-            'phheight' => $this->getXmlAttr($xml, 'phheight'),
-            'phcolor' => $this->getXmlAttr($xml, 'phcolor'),
-            'phbgcolor' => $this->getXmlAttr($xml, 'phbgcolor'),
+            'phcolor' => $this->getXmlAttr($xml, 'phcolor') ?: '000',
+            'phbgcolor' => $this->getXmlAttr($xml, 'phbgcolor') ?: 'ddd',
             'phfont' => $this->getXmlAttr($xml, 'phfont'),
-            'phfontsize' => $this->getXmlAttr($xml, 'phfontsize'),
+            'phfontsize' => $this->getXmlAttr($xml, 'phfontsize') ?: '20',
         ];
 
+        $override = $this->getXmlAttr($xml, 'override') ?: false;
+        $imageMaxHeight = $this->getXmlAttr($xml, 'maxHeight');
+        $imageMaxWidth = $this->getXmlAttr($xml, 'maxWidth');
+        $imageFormat = $this->getXmlAttr($xml, 'format');
         $srcOnly = $this->getXmlAttr($xml, 'srcOnly') === true ? true : false;
 
         $src = $this->getXmlAttr($xml, 'src');
@@ -1044,43 +959,23 @@ class BlockParser
             return '';
         }
 
-        if (filter_var($src, FILTER_VALIDATE_URL)) {
-            $info = getimagesize($src);
-            $fname = parse_url($src, PHP_URL_PATH);
-            $fname = basename($fname);
-            $fname = substr($fname, 0, strripos($fname, '.'));
-
-            $pathInfo = [
-                'extension' => trim(image_type_to_extension($info[2]), '.'),
-                'filename' => $fname,
-            ];
-            $srcFilePath = $src;
-        } else {
-            $src = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $src);
-
-            if (empty($src)) {
-                $srcFilePath = $src = $this->createImagePlaceholder($placeHolderConfig);
-            } else {
-                if (substr($src, 0, 1) === '/' || strpos($src, ':') !== false) {
-                    // absolute path
-                    $srcFilePath = $src;
-                } else {
-                    // relative path
-                    $srcFilePath = $this->core->getApplicationDir() . DIRECTORY_SEPARATOR . ltrim($src, '/');
-                }
-
-                if (is_file($srcFilePath) === false) {
-                    return '';
-                }
+        if($placeHolderConfig['phtext'] !== null) {
+            if($placeHolderConfig['phfont']) {
+                $this->imageEditor = $this->imageEditor->setFontFile($placeHolderConfig['phfont']);
             }
-            $pathInfo = pathinfo($srcFilePath);
+            $this->imageEditor = $this->imageEditor->createPlaceholder($placeHolderConfig['phtext'], $imageTags['width'], $imageTags['height'], $placeHolderConfig['phfontsize'], $placeHolderConfig['phcolor'], $placeHolderConfig['phbgcolor']);
+        } else {
+            $this->imageEditor = $this->imageEditor->setImageSource($src);
         }
 
-        $imagine = $this->serviceLocator->get('Imagine');
+        if($override === true) {
+            $this->imageEditor = $this->imageEditor->setImageOverride($override);
+        }
+
         $allowedMethods = ['thumbnail', 'resize', 'crop', ''];
         // methods fit / resize / none
-        $imageQuality = intval($this->getXmlAttr($xml, 'quality') ? : ($this->config->get('IMAGE_QUALITY')->value ? : '80'));
-        $method = $this->getXmlAttr($xml, 'method') ? : '';
+        $imageQuality = $this->getXmlAttr($xml, 'quality');
+        $method = $this->getXmlAttr($xml, 'method') ? : 'resize';
         $mode = $this->getXmlAttr($xml, 'mode') ? : 'outbound';
         $crop = $this->getXmlAttr($xml, 'crop') ? explode(',', $this->getXmlAttr($xml, 'crop')) : null;
 
@@ -1088,17 +983,22 @@ class BlockParser
             throw new \Exception("Image method '{$method}' is not allowed.");
         }
 
-        $imagePath = $this->getImageSavePath($pathInfo['filename'] . '-' . md5(md5_file($srcFilePath).$xml->asXML()), $pathInfo['extension']);
+        $this->imageEditor = $this->imageEditor->setImageQuality($imageQuality)->setImageHash($xml->asXML())->setImageFormat($imageFormat);
 
-        if (!is_file($imagePath)) {
-            $image = $imagine->open($srcFilePath);
-            $imageBox = $this->getImageBox($imageTags, $image);
+        if ($this->imageEditor->imageExists() === false) {
 
-            if ($method == 'resize') {
-                $image->resize($imageBox);
-            } elseif ($method == 'thumbnail') {
-                $imageTags['width'] = $imageTags['width'] ? : $image->getSize()->getWidth();
-                $imageTags['height'] = $imageTags['height'] ? : $image->getSize()->getHeight();
+            if ($method === 'resize') {
+                $this->imageEditor
+                    ->setImageWidth($imageTags['width'])
+                    ->setImageHeight($imageTags['height'])
+                    ->setImageMaxWidth($imageMaxWidth)
+                    ->setImageMaxHeight($imageMaxHeight)
+                    ->imageResize();
+
+                $imageTags['width'] = $imageTags['width'] ? : $this->imageEditor->getImage()->getSize()->getWidth();
+                $imageTags['height'] = $imageTags['height'] ? : $this->imageEditor->getImage()->getSize()->getHeight();
+
+            } elseif ($method === 'thumbnail') {
 
                 if ($mode == 'outbound') {
                     $mode = \Imagine\Image\ImageInterface::THUMBNAIL_OUTBOUND;
@@ -1106,30 +1006,33 @@ class BlockParser
                     $mode = \Imagine\Image\ImageInterface::THUMBNAIL_INSET;
                 }
 
-                $image = $image->thumbnail(
-                    new \Imagine\Image\Box($imageTags['width'], $imageTags['height']),
-                    $mode
-                );
+                $this->imageEditor = $this->imageEditor
+                    ->setImageWidth($imageTags['width'])
+                    ->setImageHeight($imageTags['height'])
+                    ->imageThumbnail($mode);
+
+                $imageTags['width'] = $this->imageEditor->getImage()->getSize()->getWidth();
+                $imageTags['height'] = $this->imageEditor->getImage()->getSize()->getHeight();
+
             } else {
-                $imageTags['width'] = $imageTags['width'] ? : $image->getSize()->getWidth();
-                $imageTags['height'] = $imageTags['height'] ? : $image->getSize()->getHeight();
+                $imageTags['width'] = $imageTags['width'] ? : $this->imageEditor->getImage()->getSize()->getWidth();
+                $imageTags['height'] = $imageTags['height'] ? : $this->imageEditor->getImage()->getSize()->getHeight();
+                $this->imageEditor = $this->imageEditor
+                    ->setImageWidth($imageTags['width'])
+                    ->setImageHeight($imageTags['height']);
             }
 
             if ($crop) {
-                $image->crop(new \Imagine\Image\Point($crop[0], $crop[1]), new \Imagine\Image\Box($crop[2], $crop[3]));
-                $imageTags['width'] = $image->getSize()->getWidth();
-                $imageTags['height'] = $image->getSize()->getHeight();
+                $this->imageEditor = $this->imageEditor->imageCrop($crop[0], $crop[1], $crop[2], $crop[3]);
             }
 
-            $image->save($imagePath, ['quality' => $imageQuality]);
+            $imagePath = $this->imageEditor->save();
         } else {
-            list($width, $height) = getimagesize($imagePath);
+            $imagePath = $this->imageEditor->getImagePath();
+            list($width, $height) = getimagesize('Public' . DIRECTORY_SEPARATOR . $imagePath);
             $imageTags['width'] = $width;
             $imageTags['height'] = $height;
         }
-
-        // remove Public folder
-        $convertedImageFileName = substr($imagePath, strpos($imagePath, DIRECTORY_SEPARATOR)+1);
 
         if ($this->getXmlAttr($xml, 'autosize')) {
             unset($imageTags['width']);
@@ -1143,30 +1046,7 @@ class BlockParser
             }
         }
 
-        if ($src === null) {
-            unlink($srcFilePath);
-        }
-
-        $imagePath = '/' . str_replace(['\\', '/'], '/', $convertedImageFileName);
-        return $srcOnly ? $imagePath : '<img src="' . $imagePath . '" ' . $attributes . ' />';
-    }
-
-    /**
-     * @param $imageTags
-     * @param $imagine
-     * @return \Imagine\Image\Box
-     */
-    private function getImageBox($imageTags, $imagine)
-    {
-        if (empty($imageTags['width']) && !empty($imageTags['height'])) {
-            return $imagine->getSize()->heighten($imageTags['height']);
-        } elseif (empty($imageTags['height']) && !empty($imageTags['width'])) {
-            return $imagine->getSize()->widen($imageTags['width']);
-        } elseif (!empty($imageTags['height']) && !empty($imageTags['width'])) {
-            return new \Imagine\Image\Box($imageTags['width'], $imageTags['height']);
-        }
-
-        return new \Imagine\Image\Box($imagine->getSize()->getWidth(), $imagine->getSize()->getHeight());
+        return $srcOnly ? $imagePath : '<img src="/' . $imagePath . '" ' . $attributes . ' />';
     }
 
     /**

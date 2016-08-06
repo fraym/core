@@ -164,7 +164,7 @@ class Route
     }
 
     /**
-     * If we have a virtual URI we must set force page load to true, otherwise we get page note fount error
+     * If we have a virtual URI we must set force page load to true, otherwise we get page not found error
      *
      * @param bool $forcePageLoad
      */
@@ -174,7 +174,7 @@ class Route
     }
 
     /**
-     * try to load the caching file if one is availible and caching is active
+     * Try to load the caching file if one is available and caching is active
      *
      * @Inject
      * @param \Fraym\Database\Database $db
@@ -343,7 +343,8 @@ class Route
     }
 
     /**
-     * @static
+     * Returns the query for parseRoute method
+     *
      * @return mixed
      */
     public function prepareMenuQuery()
@@ -385,7 +386,8 @@ class Route
     }
 
     /**
-     * @static
+     * Parse and search a menu item by the current requested url
+     *
      * @return array|bool
      */
     private function parseRoute()
@@ -456,6 +458,8 @@ class Route
     }
 
     /**
+     * Returns the current site menu root that is active and visible
+     *
      * @return bool
      */
     public function getMenu()
@@ -469,6 +473,8 @@ class Route
     }
 
     /**
+     * Returns the current menu item url
+     *
      * @return mixed
      */
     public function getMenuPath()
@@ -477,6 +483,8 @@ class Route
     }
 
     /**
+     * Adds a virtual route
+     *
      * @param $key
      * @param $route
      * @param $callback
@@ -519,8 +527,8 @@ class Route
     {
         $requestRoute = $this->getRequestRoute(false, false);
         $requestRouteWithoutBase = $this->getRequestRoute(true, true);
-        $addionalUri = $this->getAddionalURI();
-        $siteBaseUri = $this->getSiteBaseURI(false);
+        $addionalUri = $this->getAddionalUri();
+        $siteBaseUri = $this->getSiteBaseUri(false);
 
         foreach ($this->virutalRoutes as $data) {
             if ($data->inContext !== $inContext) {
@@ -571,7 +579,7 @@ class Route
     }
 
     /**
-     *
+     * Init annotation and extension routes
      */
     public function loadRoutes()
     {
@@ -602,6 +610,8 @@ class Route
     }
 
     /**
+     * Returns the request domain like foobar.example.com
+     *
      * @return mixed
      */
     public function getRequestDomain()
@@ -632,17 +642,6 @@ class Route
 
             $virtualRouteContent = $this->getVirtualRouteContent();
 
-            /**
-             * Redirect http to https if enabled
-             */
-            if ($virtualRouteContent === false &&
-                $this->request->isXmlHttpRequest() === false &&
-                $this->isHttps() === false &&
-                $this->currentMenuItem->https === true
-            ) {
-                $this->redirectToURL('https://' . $this->getRequestRoute());
-            }
-
             $this->sitefullRoute = rtrim($this->buildFullUrl($this->currentMenuItem), '/');
 
             if ($virtualRouteContent !== false) {
@@ -657,12 +656,7 @@ class Route
                 return $this->menuItemNotFound();
             }
 
-            // Redirect URL to correct uri with or withour slash
-            if ($this->getRequestRoute(true) !== '/' && $this->getFoundURI(false) === trim($this->getRequestRoute(false, false), '/') && $this->getFoundURI(false) !== $this->getRequestRoute(false, false)) {
-                $this->redirectToURL($this->getFoundURI(true));
-            }
-
-            if ($this->getFoundURI(false) === trim($this->getRequestRoute(false, false), '/') || $this->getVirtualRouteContent(true)) {
+            if ($this->getFoundUri(false) === trim($this->getRequestRoute(false, false), '/') || $this->getVirtualRouteContent(true)) {
                 $this->siteManager->addAdminPanel();
                 $tpl->renderMainTemplate();
             } else {
@@ -679,6 +673,8 @@ class Route
     }
 
     /**
+     * Add a default template to add the Fraym toolbar
+     *
      * @return string
      */
     public function getDefaultMenuItemTemplate()
@@ -720,7 +716,7 @@ class Route
         if (is_object($page404)) {
             $this->render404Site($page404);
             // cache the 404 page
-            $this->cache->setCacheContent();
+            $this->cache->setCacheContent(404);
         } else {
             error_log('Menu item not found or template not set! Solutions: Set a menu item template with the menu editor, reinstall Fraym or check your webserver configuration.');
             $this->response->sendHTTPStatusCode(500);
@@ -738,12 +734,22 @@ class Route
             $this->currentMenuItemTranslation = $menuItemTranslation;
             $this->currentMenuItem = $menuItemTranslation->menuItem;
             $this->db->setTranslatableLocale($menuItemTranslation->locale->locale);
-            $this->locale->setLocale($menuItemTranslation->locale);
             $this->template->setSiteTemplateDir($menuItemTranslation->menuItem->site->templateDir);
+
+            if($this->request->isXmlHttpRequest()) {
+                $localeId = $this->request->gp('locale_id');
+                if($localeId && is_numeric($localeId)) {
+                    $this->locale->setLocale($localeId);
+                }
+            } else {
+                $this->locale->setLocale($menuItemTranslation->locale);
+            }
 
             $pageTitle = ((string)$menuItemTranslation->pageTitle === '' ?
                     $menuItemTranslation->title :
-                    $menuItemTranslation->pageTitle) . ' | ' . $menuItemTranslation->menuItem->site->name;
+                    $menuItemTranslation->pageTitle);
+
+            $pageTitle = str_replace('[SITE_NAME]', $menuItemTranslation->menuItem->site->name, $pageTitle);
 
             $this->template->setPageTitle($pageTitle);
             $this->template->setPageDescription($menuItemTranslation->longDescription);
@@ -773,9 +779,11 @@ class Route
     }
 
     /**
+     * Returns the part of the uri that was not found
+     *
      * @return string
      */
-    public function getAddionalURI()
+    public function getAddionalUri()
     {
         return $this->addionalRoute;
     }
@@ -783,9 +791,9 @@ class Route
     /**
      * @return array
      */
-    public function getAddionalURIParams()
+    public function getAddionalUriParams()
     {
-        $addional_uri = trim($this->getAddionalURI(), '?');
+        $addional_uri = trim($this->getAddionalUri(), '?');
         $addional_uri = str_replace(['=', '&'], '/', $addional_uri);
         $addional_uri = trim($addional_uri, '/');
         $addional_uri = explode('/', $addional_uri);
@@ -819,7 +827,7 @@ class Route
      * @param bool $with_root_page
      * @return string
      */
-    public function getSiteBaseURI($withProtocol = true, $with_root_page = false)
+    public function getSiteBaseUri($withProtocol = true, $with_root_page = false)
     {
         $root_page_uri = '';
         $protocol = '';
@@ -857,9 +865,10 @@ class Route
      * @param bool $withProtocol
      * @return string
      */
-    public function getFoundURI($withProtocol = true)
+    public function getFoundUri($withProtocol = true)
     {
-        return ($this->sitefullRoute != '' ? ($withProtocol ? 'http://' : '') . $this->sitefullRoute : '');
+        $menu = $this->currentMenuItem;
+        return (!empty($this->sitefullRoute) ? ($withProtocol ? ($this->isHttps($menu) ? 'https://' : 'http://') : '') . $this->sitefullRoute : '');
     }
 
     /**

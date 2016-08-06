@@ -51,6 +51,11 @@ class Translation
         $defaultLocale = empty($defaultLocale) ? 'en_US' : $defaultLocale;
         $key = empty($key) ? $default : $key;
 
+        // Database keyfield only allowed 255 chars
+        if(strlen($key) > 255) {
+            throw new \Exception('Translation key field can only have 255 chars, please add a shorter key.');
+        }
+
         $keyLower = strtolower($key);
         $em = $this->db;
         $translation = null;

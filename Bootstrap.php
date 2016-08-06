@@ -19,7 +19,7 @@ if (is_file('Config.php')) {
     exit(0);
 }
 
-require 'Vendor/autoload.php';
+$classLoader = require 'Vendor/autoload.php';
 
 date_default_timezone_set(TIMEZONE);
 define('APC_ENABLED', (extension_loaded('apc') || extension_loaded('apcu')) && ini_get('apc.enabled'));
@@ -35,7 +35,7 @@ $builder = new \DI\ContainerBuilder();
 $builder->useAnnotations(true);
 
 if (\Fraym\Core::ENV_STAGING === ENV || \Fraym\Core::ENV_PRODUCTION === ENV) {
-    error_reporting(0);
+    error_reporting(-1);
     ini_set("display_errors", 0);
     $builder->writeProxiesToFile(true, CACHE_DI_PATH);
     define('GLOBAL_CACHING_ENABLED', true);

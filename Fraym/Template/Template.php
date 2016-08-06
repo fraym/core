@@ -777,6 +777,14 @@ class Template
             $content
         );
 
+        $literals = [];
+
+        $content = preg_replace_callback('#({literal[^\}]*\}(.*)[^\{]*\{\/literal\})#is', function($matches) use (&$literals) {
+            $hash = md5($matches[1]);
+            $literals[$hash] = $matches[2];
+            return '___FRAYM_LITERAL___' . $hash;
+        }, $content);
+
         // remove comments
         $content = preg_replace('#\{\*.*\*\}#Uis', '', $content);
 
@@ -870,6 +878,11 @@ class Template
 
         // replace object properties and methods
         $content = preg_replace_callback('/<\?php.*?\s*\?>/is', [$this, 'regexReplacePointer'], $content);
+
+        // replace literal placeholder with content
+        foreach($literals as $hash => $literal) {
+            $content = str_replace('___FRAYM_LITERAL___' . $hash, $literal, $content);
+        }
 
         return $content;
     }
