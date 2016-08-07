@@ -60,6 +60,11 @@ class Registry extends \Fraym\Entity\BaseEntity
     protected $version;
 
     /**
+     * @ORM\Column(name="composer_package", type="boolean", nullable=false)
+     */
+    protected $composerPackage = true;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Fraym\Registry\Entity\Config", mappedBy="registry", orphanRemoval=true)
      * @ORM\OrderBy({"name" = "ASC"})
      */
@@ -75,6 +80,7 @@ class Registry extends \Fraym\Entity\BaseEntity
     {
         $this->created = new \Datetime('NOW');
         $this->deletable = true;
+        $this->composerPackage = true;
         $this->configurations = new \Doctrine\Common\Collections\ArrayCollection();
         $this->blockExtensions = new \Doctrine\Common\Collections\ArrayCollection();
     }
