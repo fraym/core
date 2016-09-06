@@ -463,6 +463,7 @@ class RegistryManager
         $registryEntry->deletable = $classAnnotation->deletable;
         $registryEntry->name = $classAnnotation->name;
         $registryEntry->repositoryKey = $classAnnotation->repositoryKey;
+        $registryEntry->composerPackage = $classAnnotation->composerPackage;
 
         if ($classAnnotation->composerPackage === true && ($package = $this->getPackage($classAnnotation->repositoryKey))) {
             $package = $this->getLatestPackageVersion($package);

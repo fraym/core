@@ -293,11 +293,16 @@ class Editor
     }
 
     /**
-     * @return ImageInterface|\Imagine\Imagick\Image
+     * @return $this
+     * @throws \Exception
      */
     private function openImage() {
         if($this->image === null) {
-            $this->image = $this->imagine->open($this->metaData->source);
+            if($this->metaData) {
+                $this->image = $this->imagine->open($this->metaData->source);
+            } else {
+                throw new \Exception('Image not found! File: ' . $this->imageSource);
+            }
         }
         return $this;
     }

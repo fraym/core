@@ -18,7 +18,6 @@
     {js('fraym/libs/jquery.contextmenu.js')}
     {js('fraym/libs/jquery.noty.packaged.min.js')}
     {js('fraym/libs/jquery.slimscroll.min.js')}
-    {js('fraym/libs/jquery.touchSwipe.min.js')}
     {js('fraym/libs/jquery-ui.min.js')}
     {js('fraym/libs/bootstrap.min.js')}
 
@@ -92,15 +91,15 @@
             }
         };
 
-        var filebrowserBrowseUrl = '{i('Fraym\Route\Route')->getVirtualRoute('fileManager')->route}?locale={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}&rte=1';
-        var filebrowserImageBrowseUrl = '{i('Fraym\Route\Route')->getVirtualRoute('fileManager')->route}?locale={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}&rte=1&singleFileSelect=1&fileFilter=*.jpg,*.svg,*.jpeg,*.png,*.gif';
+        var filebrowserBrowseUrl = '{i('Fraym\Route\Route')->getVirtualRoute('fileManager')->route}?locale_id={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}&rte=1';
+        var filebrowserImageBrowseUrl = '{i('Fraym\Route\Route')->getVirtualRoute('fileManager')->route}?locale_id={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}&rte=1&singleFileSelect=1&fileFilter=*.jpg,*.svg,*.jpeg,*.png,*.gif';
         var filebrowserWindowWidth = 1000;
         var filebrowserWindowHeight = 600;
         var pageListJson = {i('Fraym\SiteManager\SiteManager')->getRteMenuItemArray()};
 
-        FileManager.fileViewerSrc = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('fileViewer')->route}?locale={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
-        FileManager.fileManagerSrc = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('fileManager')->route}?locale={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
-        Fraym.Menu.selectionSrc = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('menuSelection')->route}?locale={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
+        Fraym.FileManager.fileViewerSrc = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('fileViewer')->route}?locale_id={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
+        Fraym.FileManager.fileManagerSrc = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('fileManager')->route}?locale_id={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
+        Fraym.Menu.selectionSrc = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('menuSelection')->route}?locale_id={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
         Fraym.locales = {json_encode($locales)};
     </script>
 

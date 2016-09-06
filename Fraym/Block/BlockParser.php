@@ -64,13 +64,6 @@ class BlockParser
     private $xmlString = '';
 
     /**
-     * status of testing whether a virutal route was found
-     *
-     * @var bool
-     */
-    private $checkRouteError = false;
-
-    /**
      * flag for module route checking to prevent module execution
      *
      * @var bool
@@ -873,7 +866,10 @@ class BlockParser
      */
     public function wrapBlockConfig($block)
     {
-        $block = $block->changeSets->count() ? $block->changeSets->last() : $block;
+        if($this->user->isAdmin()) {
+            $block = $block->changeSets->count() ? $block->changeSets->last() : $block;
+        }
+
         $blockConfigXml = $block->getConfig($this->user->isAdmin());
 
         $dom = new \DOMDocument;

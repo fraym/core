@@ -17,6 +17,15 @@ html {
     padding: 5px 0 15px;
 }
 
+body > .fraym-wrapper {
+    padding-left: 41px !important;
+    box-sizing: border-box;
+}
+
+.cke_editable {
+    border: 1px dashed #F44336;
+}
+
 .ui-dialog-titlebar .ui-dialog-titlebar-refresh-iframe,
 .ui-dialog-titlebar .ui-dialog-titlebar-close {
     border: 0;

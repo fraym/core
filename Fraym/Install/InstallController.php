@@ -344,12 +344,8 @@ class InstallController extends \Fraym\Core
             $this->locale->getLocale()->locale
         );
         $pageRootTranslation->url = "";
-        $pageRootTranslation->shortDescription = $this->translation->autoTranslation(
-            'My short website description',
-            'en',
-            $this->locale->getLocale()->locale
-        );
-        $pageRootTranslation->longDescription = $this->translation->autoTranslation(
+
+        $pageRootTranslation->description = $this->translation->autoTranslation(
             'My long website description',
             'en',
             $this->locale->getLocale()->locale
@@ -375,12 +371,7 @@ class InstallController extends \Fraym\Core
         $newPageTranslation->title = $this->translation->autoTranslation('404 Page not found', 'en', $this->locale->getLocale()->locale);
         $newPageTranslation->subtitle = '';
         $newPageTranslation->url = '/' . $this->translation->autoTranslation('error', 'en', $this->locale->getLocale()->locale) . '-404';
-        $newPageTranslation->shortDescription = $this->translation->autoTranslation(
-            '404 Page not found',
-            'en',
-            $this->locale->getLocale()->locale
-        );
-        $newPageTranslation->longDescription = $this->translation->autoTranslation(
+        $newPageTranslation->description = $this->translation->autoTranslation(
             '404 Page not found',
             'en',
             $this->locale->getLocale()->locale

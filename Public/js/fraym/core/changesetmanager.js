@@ -1,4 +1,4 @@
-var ChangeSetManager = {
+Fraym.ChangeSetManager = {
 	init: function() {
 		$.each($('[data-deploymenu]'), function(){
 			$(this).click(function(e){
@@ -91,5 +91,5 @@ var ChangeSetManager = {
 };
 
 $(function () {
-	ChangeSetManager.init();
+	Fraym.ChangeSetManager.init();
 });

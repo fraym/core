@@ -63,18 +63,11 @@ class MenuItemTranslation extends \Fraym\Entity\BaseEntity
     protected $externalUrl = false;
 
     /**
-     * @var string $shortDesc
+     * @var text $description
      *
-     * @ORM\Column(name="short_desc", type="string", length=1000, nullable=true)
+     * @ORM\Column(name="description", type="text", nullable=true)
      */
-    protected $shortDescription;
-
-    /**
-     * @var text $longDesc
-     *
-     * @ORM\Column(name="long_desc", type="text", nullable=true)
-     */
-    protected $longDescription;
+    protected $description;
 
     /**
      * @var text $keywords
@@ -157,6 +150,27 @@ class MenuItemTranslation extends \Fraym\Entity\BaseEntity
         } else {
             $this->url = $url;
         }
+    }
+
+    /**
+     * @param bool $absoluteUrl
+     * @return string
+     */
+    public function getUrl($absoluteUrl = false)
+    {
+        $url = $this->url;
+
+        if ($this->externalUrl) {
+            return $this->url;
+        }
+
+        if ($absoluteUrl === true) {
+            $route = $this->getServiceLocator()->get('Fraym\Route\Route');
+            $url = rtrim($route->getCurrentDomain(), '/') . $this->url;
+            $url = ($this->menuItem->https ? 'https://' : 'http://') . $url;
+        }
+
+        return $url;
     }
 
     public function __construct()

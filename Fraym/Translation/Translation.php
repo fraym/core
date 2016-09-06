@@ -37,10 +37,11 @@ class Translation
 
     /**
      * @param $default
-     * @param string $defaultLocale
      * @param null $key
+     * @param string $defaultLocale
      * @param array $placeholder
-     * @return null|string
+     * @return mixed|null|string
+     * @throws \Exception
      */
     public function getTranslation($default, $key = null, $defaultLocale = 'en_US', $placeholder = [])
     {
@@ -174,10 +175,12 @@ class Translation
         if (isset($translations[$locale])) {
             return (object)$translations[$locale];
         } elseif ($this->locale->getLocale()->locale == $locale) {
-
             $translation->locale = $locale;
-            $this->db->refresh($translation);
-            $this->db->clear();
+            try {
+                $this->db->refresh($translation);
+            } catch (\Exception $e) {
+                error_log($e->getMessage());
+            }
             return $translation;
         } else {
             return $this->updateTranslationLocales($translation, $translationString, $locale, $defaultLocale);

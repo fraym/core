@@ -400,7 +400,7 @@ class Template
      */
     public function formatCurrency($number, $symbol = '')
     {
-        $fmt = new NumberFormatter($this->locale->getLocale()->locale, NumberFormatter::CURRENCY);
+        $fmt = new \NumberFormatter($this->locale->getLocale()->locale, \NumberFormatter::CURRENCY);
         return $fmt->formatCurrency($number, $symbol);
     }
 

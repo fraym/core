@@ -71,15 +71,6 @@ class Block
     }
 
     /**
-     * Callback function to clear the cache if a block element is created or changed
-     */
-    public function clearCache()
-    {
-        $location = $this->request->post('location', false);
-        $this->cache->deleteCache($location);
-    }
-
-    /**
      * @return bool
      */
     public function inEditMode()

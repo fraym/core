@@ -34,7 +34,7 @@ if (typeof Modernizr != 'undefined' && Modernizr.touch) {
 	};
 }
 
-var FileManager = {
+Fraym.FileManager = {
 	selectors: {
 		fileView: '#fileView',
 		selectedItems: "#fileView .file-item.selected:not(.new-file,.new-folder)",
@@ -64,18 +64,18 @@ var FileManager = {
 			this.reactivate();
 		},
 		onActivate: function (node) {
-			var parentNode = FileManager.getRootFromNode(node);
+			var parentNode = Fraym.FileManager.getRootFromNode(node);
 			var path = node.data.path;
 			$('body').mask();
 
 			$.ajax({
 				url: window.location.href,
 				dataType: 'json',
-				data: { path: path, storage: parentNode.data.storage, cmd: 'getFiles', fileFilter: FileManager.fileFilter },
+				data: { path: path, storage: parentNode.data.storage, cmd: 'getFiles', fileFilter: Fraym.FileManager.fileFilter },
 				type: 'post',
 				success: function (jsonObj, textStatus, jqXHR) {
 					if (jsonObj) {
-						FileManager.buildDetailView(jsonObj, parentNode.data.storage);
+						Fraym.FileManager.buildDetailView(jsonObj, parentNode.data.storage);
 					}
 					$('body').unmask();
 				}
@@ -96,7 +96,7 @@ var FileManager = {
 
 			$selectFileBtn.click(function(e){
 				e.preventDefault();
-				FileManager.open($this.data('filefilter'), $this.data('singlefileselect'), $this.val(), function (filemanager) {
+				Fraym.FileManager.open($this.data('filefilter'), $this.data('singlefileselect'), $this.val(), function (filemanager) {
 					if($this.prop("tagName") === 'SELECT') {
 						$this.html('');
 						$.each(filemanager.File.getSelectedItems(), function(){
@@ -129,29 +129,29 @@ var FileManager = {
 		var callback = typeof callback == 'undefined' ? function () {
 		} : callback;
 
-        var extensions = [];
-        $.each(fileFilter.split(','), function(){
-            if(this.length && typeof this.match(/\*.(.*)/i)[1] != 'undefined') {
-                extensions.push(this.match(/\*.(.*)/i)[1]);
-            }
-        });
+		var extensions = [];
+		$.each(fileFilter.split(','), function(){
+			if(this.length && typeof this.match(/\*.(.*)/i)[1] != 'undefined') {
+				extensions.push(this.match(/\*.(.*)/i)[1]);
+			}
+		});
 
 		var $dialog = Fraym.getBaseWindow().Fraym.Block.showDialog({
 			title: Fraym.Translation.FileManager.DialogTitleSelect
-		}, FileManager.fileManagerSrc + '&fileFilter=' + fileFilter + '&singleFileSelect=' + singleFileSelect + '&currentFile=' + currentFile);
+		}, Fraym.FileManager.fileManagerSrc + '&fileFilter=' + fileFilter + '&singleFileSelect=' + singleFileSelect + '&currentFile=' + currentFile);
 
 		$dialog.find('iframe').load(function () {
 			var $iframeDOM = $(this).get(0).contentWindow;
 			$iframeDOM.setInterval(function () {
-                var regex = '\\.(' + extensions.join('|') + ')$';
-                var r = new RegExp(regex);
+				var regex = '\\.(' + extensions.join('|') + ')$';
+				var r = new RegExp(regex);
 
 				// TODO: Test all files not only the first
-                if ($iframeDOM.FileManager.File.getSelectedItems().length) {
-                    if(extensions.length === 0 || r.test($iframeDOM.FileManager.File.getSelectedItems()[0].name)) {
-                        callback($iframeDOM.FileManager);
-                    }
-                }
+				if ($iframeDOM.Fraym.FileManager.File.getSelectedItems().length) {
+					if(extensions.length === 0 || r.test($iframeDOM.Fraym.FileManager.File.getSelectedItems()[0].name)) {
+						callback($iframeDOM.Fraym.FileManager);
+					}
+				}
 			}, 100);
 		});
 	},
@@ -167,29 +167,29 @@ var FileManager = {
 		},
 
 		download: function () {
-            if ($(FileManager.selectors.selectedItems).length === 0){
-                return;
-            }
-			if (!$(FileManager.selectors.selectedItems).hasClass('folder')) {
-				var file = FileManager.File.getFileInfo($(FileManager.selectors.selectedItems));
-				var data = { storage: FileManager.getRootFromActiveNode().data.storage, path: file.path, cmd: 'download' }
+			if ($(Fraym.FileManager.selectors.selectedItems).length === 0){
+				return;
+			}
+			if (!$(Fraym.FileManager.selectors.selectedItems).hasClass('folder')) {
+				var file = Fraym.FileManager.File.getFileInfo($(Fraym.FileManager.selectors.selectedItems));
+				var data = { storage: Fraym.FileManager.getRootFromActiveNode().data.storage, path: file.path, cmd: 'download' }
 				window.open(window.location.origin + window.location.pathname + '?' + Fraym.encodeQueryData(data), 'Download');
 			}
 		},
 
 		open: function () {
-			if ($(FileManager.selectors.selectedItems).hasClass('folder')) {
-				$(FileManager.selectors.selectedItems).dblclick();
+			if ($(Fraym.FileManager.selectors.selectedItems).hasClass('folder')) {
+				$(Fraym.FileManager.selectors.selectedItems).dblclick();
 			} else {
-				var file = FileManager.File.getFileInfo($(FileManager.selectors.selectedItems));
-				var data = { storage: FileManager.getRootFromActiveNode().data.storage, path: file.path }
-				Fraym.getBaseWindow().Fraym.Block.showDialog({ title: 'File: ' + $(FileManager.selectors.selectedItems).find(".file-name").html() }, FileManager.fileViewerSrc + '&' + Fraym.encodeQueryData(data));
+				var file = Fraym.FileManager.File.getFileInfo($(Fraym.FileManager.selectors.selectedItems));
+				var data = { storage: Fraym.FileManager.getRootFromActiveNode().data.storage, path: file.path }
+				Fraym.getBaseWindow().Fraym.Block.showDialog({ title: 'File: ' + $(Fraym.FileManager.selectors.selectedItems).find(".file-name").html() }, Fraym.FileManager.fileViewerSrc + '&' + Fraym.encodeQueryData(data));
 			}
 		},
 
 		copyPath: function () {
-			if (!$(FileManager.selectors.selectedItems).hasClass('folder')) {
-				var file = FileManager.File.getFileInfo($(FileManager.selectors.selectedItems));
+			if (!$(Fraym.FileManager.selectors.selectedItems).hasClass('folder')) {
+				var file = Fraym.FileManager.File.getFileInfo($(Fraym.FileManager.selectors.selectedItems));
 
 				var target = document.createElement("textarea");
 				target.style.position = "absolute";
@@ -221,26 +221,26 @@ var FileManager = {
 		},
 
 		copy: function () {
-			FileManager.File.itemsCut = false;
-			FileManager.File.itemsCopied = FileManager.File.getSelectedItems();
-			FileManager.File.itemsCopiedStorage = FileManager.getRootFromActiveNode();
+			Fraym.FileManager.File.itemsCut = false;
+			Fraym.FileManager.File.itemsCopied = Fraym.FileManager.File.getSelectedItems();
+			Fraym.FileManager.File.itemsCopiedStorage = Fraym.FileManager.getRootFromActiveNode();
 		},
 
 		cut: function () {
-			FileManager.File.copy();
-			FileManager.File.itemsCut = true;
+			Fraym.FileManager.File.copy();
+			Fraym.FileManager.File.itemsCut = true;
 
-			$.each($(FileManager.selectors.selectedItems), function () {
+			$.each($(Fraym.FileManager.selectors.selectedItems), function () {
 				$(this).css({ opacity: 0.6 });
 			});
 		},
 
 		paste: function () {
-			var items = FileManager.File.itemsCopied;
-			var cutMode = FileManager.File.itemsCut;
-			var storageFrom = FileManager.File.itemsCopiedStorage.data.storage;
-			var storageTo = FileManager.getRootFromActiveNode().data.storage;
-			var path = $(FileManager.selectors.tree).dynatree("getActiveNode").data.key;
+			var items = Fraym.FileManager.File.itemsCopied;
+			var cutMode = Fraym.FileManager.File.itemsCut;
+			var storageFrom = Fraym.FileManager.File.itemsCopiedStorage.data.storage;
+			var storageTo = Fraym.FileManager.getRootFromActiveNode().data.storage;
+			var path = $(Fraym.FileManager.selectors.tree).dynatree("getActiveNode").data.key;
 
 			$.ajax({
 				url: window.location.href,
@@ -248,16 +248,16 @@ var FileManager = {
 				data: { items: $.toJSON(items), storage: storageFrom, cutMode: cutMode, storageTo: storageTo, copyTo: path, cmd: 'pasteFile' },
 				type: 'post',
 				success: function (json) {
-					FileManager.refreshTree();
+					Fraym.FileManager.refreshTree();
 				}
 			});
 		},
 
 		getSelectedItems: function () {
-			var $selectedItems = $(FileManager.selectors.selectedItems);
+			var $selectedItems = $(Fraym.FileManager.selectors.selectedItems);
 			var items = [];
 			$.each($selectedItems, function () {
-				var info = FileManager.File.getFileInfo($(this));
+				var info = Fraym.FileManager.File.getFileInfo($(this));
 				items.push(info);
 			});
 			return items;
@@ -267,8 +267,8 @@ var FileManager = {
 			if (!confirm(Fraym.Translation.FileManager.DeleteConfirm)) {
 				return false;
 			}
-			var items = FileManager.File.getSelectedItems();
-			var parentNode = FileManager.getRootFromActiveNode();
+			var items = Fraym.FileManager.File.getSelectedItems();
+			var parentNode = Fraym.FileManager.getRootFromActiveNode();
 
 			$.ajax({
 				url: window.location.href,
@@ -277,14 +277,14 @@ var FileManager = {
 				type: 'post',
 				success: function (json) {
 					if (json.error == false) {
-						FileManager.refreshTree();
+						Fraym.FileManager.refreshTree();
 					}
 				}
 			});
 		},
 
 		newFile: function (isFolder) {
-			$(FileManager.selectors.selectedItems).removeClass('selected');
+			$(Fraym.FileManager.selectors.selectedItems).removeClass('selected');
 			var $item = $('<div class="file-item selected"><div class="file-name"></div></div>');
 			if (isFolder === true) {
 				$item.addClass('new-folder');
@@ -293,17 +293,17 @@ var FileManager = {
 				$item.addClass('new-file');
 			}
 			$item.appendTo($("#fileView"));
-			FileManager.File.rename(true);
+			Fraym.FileManager.File.rename(true);
 		},
 
 		rename: function (newFile) {
-            if(typeof newFile != 'undefined') {
-                var $item = $(FileManager.selectors.selectedAllItems);
-            } else {
-                var $item = $(FileManager.selectors.selectedItems);
-            }
+			if(typeof newFile != 'undefined') {
+				var $item = $(Fraym.FileManager.selectors.selectedAllItems);
+			} else {
+				var $item = $(Fraym.FileManager.selectors.selectedItems);
+			}
 			var filename = $item.find('.file-name').html();
-			var currentPath = $(FileManager.selectors.tree).dynatree("getActiveNode").data.path;
+			var currentPath = $(Fraym.FileManager.selectors.tree).dynatree("getActiveNode").data.path;
 			var $input = $('<input id="newFileName" value="' + filename + '"/>');
 			$input.css({
 				'width': 'auto',
@@ -318,7 +318,7 @@ var FileManager = {
 				var keyCode = (e.which ? e.which : e.keyCode);
 				var $input = $(this);
 				if (keyCode == 13) {
-					var parentNode = FileManager.getRootFromActiveNode();
+					var parentNode = Fraym.FileManager.getRootFromActiveNode();
 					var newVal = $input.val();
 					var $parentFileName = $input.parent();
 					$parentFileName.html(newVal);
@@ -337,7 +337,7 @@ var FileManager = {
 						type: 'post',
 						success: function (json) {
 							if (json.error == false) {
-								FileManager.refreshTree();
+								Fraym.FileManager.refreshTree();
 							} else if (json.error == true && ($item.hasClass('new-folder') || $item.hasClass('new-file'))) {
 								$item.remove();
 							} else if (json.error == true) {
@@ -346,8 +346,8 @@ var FileManager = {
 						}
 					});
 				} else if (keyCode == 27) {
-					if (FileManager.singleFileSelect) {
-						$(FileManager.selectors.fileItem).removeClass('selected');
+					if (Fraym.FileManager.singleFileSelect) {
+						$(Fraym.FileManager.selectors.fileItem).removeClass('selected');
 					}
 					if (($item.hasClass('new-folder') || $item.hasClass('new-file'))) {
 						$item.remove();
@@ -360,42 +360,42 @@ var FileManager = {
 	},
 
 	init: function () {
-		FileManager.Uploader.init();
+		Fraym.FileManager.Uploader.init();
 
-		FileManager.fileViewerSrc = FileManager.fileViewerSrc;
-		if (!$(FileManager.selectors.fileView).length) {
+		Fraym.FileManager.fileViewerSrc = Fraym.FileManager.fileViewerSrc;
+		if (!$(Fraym.FileManager.selectors.fileView).length) {
 			return;
 		}
 
-		$('.filemanager-file-download').click(FileManager.File.download);
-		$('.filemanager-refresh').click(FileManager.refreshTree);
+		$('.filemanager-file-download').click(Fraym.FileManager.File.download);
+		$('.filemanager-refresh').click(Fraym.FileManager.refreshTree);
 
-		if (FileManager.rteSelectOptionCallback != false) {
+		if (Fraym.FileManager.rteSelectOptionCallback != false) {
 			$(window).unload(function () {
-				var file = FileManager.File.getFileInfo($(FileManager.selectors.selectedItems));
-				window.opener.CKEDITOR.tools.callFunction(FileManager.rteSelectOptionCallback, file.publicPath);
+				var file = Fraym.FileManager.File.getFileInfo($(Fraym.FileManager.selectors.selectedItems));
+				window.opener.CKEDITOR.tools.callFunction(Fraym.FileManager.rteSelectOptionCallback, file.publicPath);
 			});
 		}
 
 		var $doneSelectionFunc = function (e) {
 			e.preventDefault();
-			FileManager.mouseX = 0;
-			FileManager.mouseY = 0;
-			$(FileManager.selectors.selection).hide();
+			Fraym.FileManager.mouseX = 0;
+			Fraym.FileManager.mouseY = 0;
+			$(Fraym.FileManager.selectors.selection).hide();
 		};
 
 		var shortcuts = function(e){
 			e.stopPropagation();
 			var keyCode = (e.which ? e.which : e.keyCode);
 			if(keyCode == '65' && (e.metaKey || e.ctrlKey)) {
-				$(FileManager.selectors.fileItem).addClass('selected');
+				$(Fraym.FileManager.selectors.fileItem).addClass('selected');
 				e.preventDefault();
 			} else if(keyCode == '67' && (e.metaKey || e.ctrlKey)) {
-				FileManager.File.copy();
+				Fraym.FileManager.File.copy();
 			} else if(keyCode == '86' && (e.metaKey || e.ctrlKey)) {
-				FileManager.File.paste();
+				Fraym.FileManager.File.paste();
 			} else if(keyCode == '88' && (e.metaKey || e.ctrlKey)) {
-				FileManager.File.cut();
+				Fraym.FileManager.File.cut();
 			}
 		};
 
@@ -403,113 +403,96 @@ var FileManager = {
 		$(window).focus();
 
 		var selecting = false;
-		$(FileManager.selectors.fileView).mousedown(function (e) {
+		$(Fraym.FileManager.selectors.fileView).mousedown(function (e) {
 			if (e.which === 1) {
 				e.preventDefault();
-				FileManager.mouseX = (e.pageX ? e.pageX : e.clientX);
-				FileManager.mouseY = (e.pageY ? e.pageY : e.clientY);
+				Fraym.FileManager.mouseX = (e.pageX ? e.pageX : e.clientX);
+				Fraym.FileManager.mouseY = (e.pageY ? e.pageY : e.clientY);
 			}
 			selecting = false;
 		}).mousemove(function (e) {
-				e.preventDefault();
-				if (FileManager.mouseX && FileManager.mouseY) {
-					var x2 = (e.pageX ? e.pageX : e.clientX);
-					var y2 = (e.pageY ? e.pageY : e.clientY);
-					var TOP = ((FileManager.mouseY < y2) ? FileManager.mouseY : y2) - $('#fileView').offset().top;
-					var LEFT = ((FileManager.mouseX < x2) ? FileManager.mouseX : x2) - $('#fileView').offset().left;
-					var WIDTH = (FileManager.mouseX < x2) ? x2 - FileManager.mouseX : FileManager.mouseX - x2;
-					var HEIGHT = (FileManager.mouseY < y2) ? y2 - FileManager.mouseY : FileManager.mouseY - y2;
-					$(FileManager.selectors.selection).css({
-						position: 'absolute',
-						zIndex: 5000,
-						left: LEFT,
-						top: TOP,
-						width: WIDTH,
-						height: HEIGHT
-					});
-					$(FileManager.selectors.selection).show();
+			e.preventDefault();
+			if (Fraym.FileManager.mouseX && Fraym.FileManager.mouseY) {
+				var x2 = (e.pageX ? e.pageX : e.clientX);
+				var y2 = (e.pageY ? e.pageY : e.clientY);
+				var TOP = ((Fraym.FileManager.mouseY < y2) ? Fraym.FileManager.mouseY : y2) - $('#fileView').offset().top;
+				var LEFT = ((Fraym.FileManager.mouseX < x2) ? Fraym.FileManager.mouseX : x2) - $('#fileView').offset().left;
+				var WIDTH = (Fraym.FileManager.mouseX < x2) ? x2 - Fraym.FileManager.mouseX : Fraym.FileManager.mouseX - x2;
+				var HEIGHT = (Fraym.FileManager.mouseY < y2) ? y2 - Fraym.FileManager.mouseY : Fraym.FileManager.mouseY - y2;
+				$(Fraym.FileManager.selectors.selection).css({
+					position: 'absolute',
+					zIndex: 5000,
+					left: LEFT,
+					top: TOP,
+					width: WIDTH,
+					height: HEIGHT
+				});
+				$(Fraym.FileManager.selectors.selection).show();
 
-					var newMouseX = (e.pageX ? e.pageX : e.clientX);
-					var newMouseY = (e.pageY ? e.pageY : e.clientY);
-					var elements = FileManager.rectangleSelect(FileManager.selectors.fileItem, FileManager.mouseX, FileManager.mouseY, newMouseX, newMouseY);
-					$(FileManager.selectors.fileItem).removeClass('selected');
-					selecting = true;
-					$.each(elements, function () {
-						this.addClass('selected');
-						if (FileManager.singleFileSelect) {
-							return false;
-						}
-					});
-				}
-			}).mouseup($doneSelectionFunc).bind('contextmenu',function (e) {
-				e.preventDefault();
-				selecting = false;
-			}).click(function (e) {
-				e.preventDefault();
-				if ($(e.target).attr('id') == 'fileView' && selecting === false) {
-					$(FileManager.selectors.fileItem).removeClass('selected');
-					var e = jQuery.Event("keydown");
-					e.which = 27;
-					$(FileManager.selectors.fileItem).find("input").trigger(e);
-				}
-			}).swipe({
-				click: function (e, target) {
-					if ($(target).hasClass('file-item')) {
-						if (FileManager.singleFileSelect) {
-							$(FileManager.selectors.fileItem).removeClass('selected');
-						}
-						$(target).toggleClass('selected');
+				var newMouseX = (e.pageX ? e.pageX : e.clientX);
+				var newMouseY = (e.pageY ? e.pageY : e.clientY);
+				var elements = Fraym.FileManager.rectangleSelect(Fraym.FileManager.selectors.fileItem, Fraym.FileManager.mouseX, Fraym.FileManager.mouseY, newMouseX, newMouseY);
+				$(Fraym.FileManager.selectors.fileItem).removeClass('selected');
+				selecting = true;
+				$.each(elements, function () {
+					this.addClass('selected');
+					if (Fraym.FileManager.singleFileSelect) {
+						return false;
 					}
-				},
-				swipe: function (event, direction, distance, duration, fingerCount) {
-					if (fingerCount === 1) {
-						$(this).contextMenu({
-							x: event.changedTouches[0].screenX,
-							y: event.changedTouches[0].screenY
-						});
-					}
-				}
-			});
+				});
+			}
+		}).mouseup($doneSelectionFunc).bind('contextmenu',function (e) {
+			e.preventDefault();
+			selecting = false;
+		}).click(function (e) {
+			e.preventDefault();
+			if ($(e.target).attr('id') == 'fileView' && selecting === false) {
+				$(Fraym.FileManager.selectors.fileItem).removeClass('selected');
+				var e = jQuery.Event("keydown");
+				e.which = 27;
+				$(Fraym.FileManager.selectors.fileItem).find("input").trigger(e);
+			}
+		});
 
-		$(FileManager.selectors.tree).dynatree(
-			$.extend({ children: FileManager.dynatreeJson }, FileManager.dynatreeConfig)
+		$(Fraym.FileManager.selectors.tree).dynatree(
+			$.extend({ children: Fraym.FileManager.dynatreeJson }, Fraym.FileManager.dynatreeConfig)
 		);
 
-		if(FileManager.currentFile != '') {
-			if(FileManager.currentFile.substr(0, 1) == '/') {
-				var path = FileManager.currentFile.substr(0, FileManager.currentFile.lastIndexOf('/'));
+		if(Fraym.FileManager.currentFile != '') {
+			if(Fraym.FileManager.currentFile.substr(0, 1) == '/') {
+				var path = Fraym.FileManager.currentFile.substr(0, Fraym.FileManager.currentFile.lastIndexOf('/'));
 			} else {
-				var path = FileManager.currentFile.substr(0, FileManager.currentFile.lastIndexOf('/'));
-				var storageName = FileManager.currentFile.substr(0, FileManager.currentFile.indexOf('/'));
+				var path = Fraym.FileManager.currentFile.substr(0, Fraym.FileManager.currentFile.lastIndexOf('/'));
+				var storageName = Fraym.FileManager.currentFile.substr(0, Fraym.FileManager.currentFile.indexOf('/'));
 
-				$.each(FileManager.dynatreeJson, function(){
+				$.each(Fraym.FileManager.dynatreeJson, function(){
 					if(this.title === storageName) {
 						path = this.path.substr(0, this.path.lastIndexOf('/')) + '/' + path;
 					}
 				});
 			}
-			$(FileManager.selectors.tree).dynatree("getTree").activateKey(path);
+			$(Fraym.FileManager.selectors.tree).dynatree("getTree").activateKey(path);
 		}
 
 		var isDisabled = function () {
-			return FileManager.File.getSelectedItems().length ? false : true;
+			return Fraym.FileManager.File.getSelectedItems().length ? false : true;
 		};
 		var isDisabledPaste = function () {
-			return FileManager.File.itemsCopied.length ? false : true;
+			return Fraym.FileManager.File.itemsCopied.length ? false : true;
 		};
 		var isDisabledRenameOpen = function () {
-			return FileManager.File.getSelectedItems().length == 1 ? false : true;
+			return Fraym.FileManager.File.getSelectedItems().length == 1 ? false : true;
 		};
 		var isDisabledNewFile = function () {
-			return $(FileManager.selectors.tree).dynatree("getActiveNode") == null;
+			return $(Fraym.FileManager.selectors.tree).dynatree("getActiveNode") == null;
 		};
 
 		var isDisabledCopyPath = function () {
-			if(FileManager.File.getSelectedItems().length === 0 || FileManager.File.getSelectedItems().length > 1) {
+			if(Fraym.FileManager.File.getSelectedItems().length === 0 || Fraym.FileManager.File.getSelectedItems().length > 1) {
 				return true;
 			}
 
-			if(FileManager.File.getSelectedItems()[0].isDir) {
+			if(Fraym.FileManager.File.getSelectedItems()[0].isDir) {
 				return true;
 			}
 			return false;
@@ -531,35 +514,35 @@ var FileManager = {
 		};
 
 		$.contextMenu({
-			selector: FileManager.selectors.fileView,
+			selector: Fraym.FileManager.selectors.fileView,
 			callback: function (key, options) {
 				switch (key) {
 					case "rename":
-						FileManager.File.rename();
+						Fraym.FileManager.File.rename();
 						break;
 					case "cut":
-						FileManager.File.cut();
+						Fraym.FileManager.File.cut();
 						break;
 					case "copy":
-						FileManager.File.copy();
+						Fraym.FileManager.File.copy();
 						break;
 					case "paste":
-						FileManager.File.paste();
+						Fraym.FileManager.File.paste();
 						break;
 					case "delete":
-						FileManager.File.delete();
+						Fraym.FileManager.File.delete();
 						break;
 					case "newFolder":
-						FileManager.File.newFile(true);
+						Fraym.FileManager.File.newFile(true);
 						break;
 					case "newFile":
-						FileManager.File.newFile(false);
+						Fraym.FileManager.File.newFile(false);
 						break;
 					case "open":
-						FileManager.File.open();
+						Fraym.FileManager.File.open();
 						break;
 					case "copyPath":
-						FileManager.File.copyPath();
+						Fraym.FileManager.File.copyPath();
 						break;
 				}
 			},
@@ -570,7 +553,7 @@ var FileManager = {
 
 	refreshTree: function () {
 		$('body').mask();
-		var activeKey = $(FileManager.selectors.tree).dynatree("getActiveNode") ? $(FileManager.selectors.tree).dynatree("getActiveNode").data.key : false;
+		var activeKey = $(Fraym.FileManager.selectors.tree).dynatree("getActiveNode") ? $(Fraym.FileManager.selectors.tree).dynatree("getActiveNode").data.key : false;
 
 		$.ajax({
 			url: window.location.href,
@@ -578,12 +561,12 @@ var FileManager = {
 			data: { cmd: 'updateTree' },
 			type: 'post',
 			success: function (json) {
-				$(FileManager.selectors.tree).dynatree("destroy");
-				$(FileManager.selectors.tree).dynatree(
-					$.extend({ children: json }, FileManager.dynatreeConfig)
+				$(Fraym.FileManager.selectors.tree).dynatree("destroy");
+				$(Fraym.FileManager.selectors.tree).dynatree(
+					$.extend({ children: json }, Fraym.FileManager.dynatreeConfig)
 				);
 				if (activeKey) {
-					FileManager.activateKey(activeKey);
+					Fraym.FileManager.activateKey(activeKey);
 				}
 				$('body').unmask();
 			}
@@ -591,14 +574,14 @@ var FileManager = {
 	},
 
 	activateKey: function (activeKey) {
-		$(FileManager.selectors.tree).dynatree("getTree").activateKey(activeKey).toggleExpand();
+		$(Fraym.FileManager.selectors.tree).dynatree("getTree").activateKey(activeKey).toggleExpand();
 	},
 
 	getRootFromActiveNode: function () {
-		var node = $(FileManager.selectors.tree).dynatree("getActiveNode");
+		var node = $(Fraym.FileManager.selectors.tree).dynatree("getActiveNode");
 
 		if (node) {
-			return FileManager.getRootFromNode(node);
+			return Fraym.FileManager.getRootFromNode(node);
 		} else {
 			return false;
 		}
@@ -619,7 +602,7 @@ var FileManager = {
 			var p = $(this).offset();
 			var xmiddle = p.left + $(this).width() / 2;
 			var ymiddle = p.top + $(this).height() / 2;
-			if (FileManager.matchPos(xmiddle, ymiddle, x1, y1, x2, y2)) {
+			if (Fraym.FileManager.matchPos(xmiddle, ymiddle, x1, y1, x2, y2)) {
 				elements.push($(this));
 			}
 		});
@@ -654,7 +637,7 @@ var FileManager = {
 	},
 
 	buildDetailView: function (jsonObj, storage) {
-		$(FileManager.selectors.fileItem).remove();
+		$(Fraym.FileManager.selectors.fileItem).remove();
 		$.each(jsonObj, function () {
 			var obj = this;
 			var $file = $('<div class="file-item"></div>');
@@ -664,7 +647,7 @@ var FileManager = {
 			if (obj.isDir) {
 				$file.addClass('folder');
 			}
-			if (Fraym.inArray(obj.extension, FileManager.previewIconFileExtensions)) {
+			if (Fraym.inArray(obj.extension, Fraym.FileManager.previewIconFileExtensions)) {
 				$file.css('background-image', 'url(' + window.location.pathname + '?cmd=getPreviewIcon&path=' + Fraym.urlEncode(obj.path) + '&storage=' + Fraym.urlEncode(storage) + ')');
 			}
 
@@ -675,26 +658,26 @@ var FileManager = {
 			$file.bind('contextmenu',function (e) {
 				e.preventDefault();
 			}).mousedown(function (e) {
-					e.preventDefault();
-					e.stopPropagation();
-					var keyCode = (e.which ? e.which : e.keyCode);
-					if (keyCode != 3 || !$(this).hasClass('selected')) {
-						if (FileManager.singleFileSelect) {
-							$(FileManager.selectors.fileItem).removeClass('selected');
-						}
-						$(this).toggleClass('selected');
+				e.preventDefault();
+				e.stopPropagation();
+				var keyCode = (e.which ? e.which : e.keyCode);
+				if (keyCode != 3 || !$(this).hasClass('selected')) {
+					if (Fraym.FileManager.singleFileSelect) {
+						$(Fraym.FileManager.selectors.fileItem).removeClass('selected');
 					}
+					$(this).toggleClass('selected');
+				}
 
-					return false;
-				}).dblclick(function () {
-					if (obj.isDir) {
-						FileManager.activateKey(obj.path + obj.directorySeparator + obj.name);
-					} else {
-						$(FileManager.selectors.selectedItems).removeClass('selected');
-						$(this).addClass('selected');
-						FileManager.File.open();
-					}
-				});
+				return false;
+			}).dblclick(function () {
+				if (obj.isDir) {
+					Fraym.FileManager.activateKey(obj.path + obj.directorySeparator + obj.name);
+				} else {
+					$(Fraym.FileManager.selectors.selectedItems).removeClass('selected');
+					$(this).addClass('selected');
+					Fraym.FileManager.File.open();
+				}
+			});
 		});
 	},
 
@@ -706,7 +689,7 @@ var FileManager = {
 		resumable: null,
 
 		init: function () {
-			FileManager.Uploader.resumable = new Resumable({
+			Fraym.FileManager.Uploader.resumable = new Resumable({
 				chunkSize: 2 * 1024 * 1024,
 				simultaneousUploads: 4,
 				target: window.location.pathname,
@@ -714,41 +697,41 @@ var FileManager = {
 				prioritizeFirstAndLastChunk: true
 			});
 
-			FileManager.Uploader.resumable.assignBrowse($('.resumable-browse'));
-			FileManager.Uploader.resumable.assignDrop($('.resumable-drop'));
-			FileManager.Uploader.resumable.on('fileAdded', function (file) {
-				var path = $(FileManager.selectors.tree).dynatree("getActiveNode").data.key;
-				FileManager.Uploader.resumable.opts.query.path = path;
-				FileManager.Uploader.addFile(file);
-				FileManager.Uploader.resumable.upload();
+			Fraym.FileManager.Uploader.resumable.assignBrowse($('.resumable-browse'));
+			Fraym.FileManager.Uploader.resumable.assignDrop($('.resumable-drop'));
+			Fraym.FileManager.Uploader.resumable.on('fileAdded', function (file) {
+				var path = $(Fraym.FileManager.selectors.tree).dynatree("getActiveNode").data.key;
+				Fraym.FileManager.Uploader.resumable.opts.query.path = path;
+				Fraym.FileManager.Uploader.addFile(file);
+				Fraym.FileManager.Uploader.resumable.upload();
 			});
 
-			FileManager.Uploader.resumable.on('fileProgress', function(file){
-				FileManager.Uploader.setFileProgress(file.uniqueIdentifier, file.progress());
-				FileManager.Uploader.setProgress(FileManager.Uploader.resumable.progress());
-            });
+			Fraym.FileManager.Uploader.resumable.on('fileProgress', function(file){
+				Fraym.FileManager.Uploader.setFileProgress(file.uniqueIdentifier, file.progress());
+				Fraym.FileManager.Uploader.setProgress(Fraym.FileManager.Uploader.resumable.progress());
+			});
 
-			FileManager.Uploader.resumable.on('fileError', function(file, message){
-				FileManager.Uploader.setFileUploadStatus(file.uniqueIdentifier, 'error', message);
-				FileManager.Uploader.setFileProgress(file.uniqueIdentifier, -1);
-		   });
+			Fraym.FileManager.Uploader.resumable.on('fileError', function(file, message){
+				Fraym.FileManager.Uploader.setFileUploadStatus(file.uniqueIdentifier, 'error', message);
+				Fraym.FileManager.Uploader.setFileProgress(file.uniqueIdentifier, -1);
+			});
 
-			FileManager.Uploader.resumable.on('fileSuccess', function(file, message){
-				FileManager.Uploader.setFileUploadStatus(file.uniqueIdentifier, 'completed', '');
-				FileManager.Uploader.setFileProgress(file.uniqueIdentifier, 1);
-		   });
+			Fraym.FileManager.Uploader.resumable.on('fileSuccess', function(file, message){
+				Fraym.FileManager.Uploader.setFileUploadStatus(file.uniqueIdentifier, 'completed', '');
+				Fraym.FileManager.Uploader.setFileProgress(file.uniqueIdentifier, 1);
+			});
 		},
 
 		setFileUploadStatus: function(identifier, uploadStatus, errorMessage){
-			if(!FileManager.Uploader.files[identifier]) return;
-			FileManager.Uploader.files[identifier].uploadStatus = uploadStatus;
-			FileManager.Uploader.files[identifier].errorMessage = errorMessage;
+			if(!Fraym.FileManager.Uploader.files[identifier]) return;
+			Fraym.FileManager.Uploader.files[identifier].uploadStatus = uploadStatus;
+			Fraym.FileManager.Uploader.files[identifier].errorMessage = errorMessage;
 		},
 
 
 		setFileProgress: function(identifier, progress) {
-			if(!FileManager.Uploader.files[identifier]) return;
-			var f = FileManager.Uploader.files[identifier];
+			if(!Fraym.FileManager.Uploader.files[identifier]) return;
+			var f = Fraym.FileManager.Uploader.files[identifier];
 			f.progress = progress;
 			f.progressPercent = Math.floor(Math.round(progress*100.0));
 			$('[data-identifier="' + identifier + '"]').html(f.fileName + ' ('+f.fileSizeFmt+') (' + f.progressPercent + '%)');
@@ -756,11 +739,11 @@ var FileManager = {
 
 		setProgress: function(progress) {
 			if(progress>=1) {
-                FileManager.refreshTree();
-                FileManager.Uploader.resumable.cancel();
-            }
-			FileManager.Uploader.progress = progress;
-			FileManager.Uploader.progressPercent = Math.floor(Math.floor(progress*100.0));
+				Fraym.FileManager.refreshTree();
+				Fraym.FileManager.Uploader.resumable.cancel();
+			}
+			Fraym.FileManager.Uploader.progress = progress;
+			Fraym.FileManager.Uploader.progressPercent = Math.floor(Math.floor(progress*100.0));
 		},
 
 		addFile: function (resumableFile) {
@@ -778,12 +761,12 @@ var FileManager = {
 				fileSizeFmt: Math.round((resumableFile.size / 1024.0 / 1024.0) * 10.0) / 10.0 + ' MB'
 			};
 
-			FileManager.Uploader.files[identifier] = file;
-			FileManager.Uploader.fileCount++;
+			Fraym.FileManager.Uploader.files[identifier] = file;
+			Fraym.FileManager.Uploader.fileCount++;
 
-            var $item = $('<div class="file-item selected"><div class="file-name" data-identifier="' + identifier + '">' + file.fileName + ' ('+file.fileSizeFmt+')' + '</div></div>');
-            $item.addClass('new-file');
-            $item.appendTo($("#fileView"));
+			var $item = $('<div class="file-item selected"><div class="file-name" data-identifier="' + identifier + '">' + file.fileName + ' ('+file.fileSizeFmt+')' + '</div></div>');
+			$item.addClass('new-file');
+			$item.appendTo($("#fileView"));
 
 			return file;
 		}
@@ -792,5 +775,5 @@ var FileManager = {
 };
 
 $(function () {
-	FileManager.initFilePathInput();
+	Fraym.FileManager.initFilePathInput();
 });

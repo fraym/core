@@ -156,7 +156,7 @@ class Cache
                         $this->route->isHttps() === false &&
                         $menuItemTranslation->menuItem->https === true
                     ) {
-                        $this->route->redirectToURL('https://' . $this->route->getRequestRoute());
+                        $this->route->redirectToUrl('https://' . $this->route->getRequestRoute());
                     }
 
                     $this->locale->setLocale($menuItemTranslation->locale);
@@ -343,6 +343,19 @@ class Cache
                 $data = $unSerializedData;
             }
             return $data;
+        }
+        return false;
+    }
+
+    /**
+     * @param $key
+     * @return bool|mixed|string
+     */
+    public function getDataCacheTime($key)
+    {
+        $cacheFilename = self::DIR_CUSTOM_DATA . md5($key) . '.cache';
+        if (is_file($cacheFilename)) {
+            return time() - filemtime($cacheFilename);
         }
         return false;
     }

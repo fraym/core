@@ -98,17 +98,17 @@ class UserController extends \Fraym\Core
                             $redirectToData
                         );
                         if ($redirectMenuItem) {
-                            $this->route->redirectToURL($this->route->buildFullUrl($redirectMenuItem, true));
+                            $this->route->redirectToUrl($this->route->buildFullUrl($redirectMenuItem, true));
                         }
                         break;
                     case 'url':
-                        $this->route->redirectToURL((string)$this->xml->onLoginSuccessful->redirectTo);
+                        $this->route->redirectToUrl((string)$this->xml->onLoginSuccessful->redirectTo);
                         break;
                 }
                 return true;
             }
         } elseif ($this->user->isLoggedIn()) {
-            $this->route->redirectToURL($this->route->getRequestRoute(true));
+            $this->route->redirectToUrl($this->route->getRequestRoute(true));
             return true;
         }
         return false;
@@ -133,17 +133,17 @@ class UserController extends \Fraym\Core
                             $redirectToData
                         );
                         if ($redirectMenuItem) {
-                            $this->route->redirectToURL($this->route->buildFullUrl($redirectMenuItem, true));
+                            $this->route->redirectToUrl($this->route->buildFullUrl($redirectMenuItem, true));
                         }
                         break;
                     case 'url':
-                        $this->route->redirectToURL((string)$this->xml->onLogoutSuccessful->redirectTo);
+                        $this->route->redirectToUrl((string)$this->xml->onLogoutSuccessful->redirectTo);
                         break;
                 }
                 return true;
             }
         } elseif ($this->user->isLoggedIn() === false) {
-            $this->route->redirectToURL($this->route->getSiteBaseURI());
+            $this->route->redirectToUrl($this->route->getSiteBaseURI());
             return true;
         }
         return false;
@@ -212,7 +212,7 @@ class UserController extends \Fraym\Core
         if ($redirectRoute === null) {
             $redirectRoute = $this->route->getSiteBaseURI();
         }
-        $this->route->redirectToURL($redirectRoute);
+        $this->route->redirectToUrl($redirectRoute);
     }
 
     /**

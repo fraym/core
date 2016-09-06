@@ -91,7 +91,7 @@ Fraym.Menu = {
 
         $('#menu-del-item').click(function(){
             if($("#menu-item-list").dynatree("getActiveNode")) {
-                Fraym.Menu.delMenuItem($("#menu-item-list").dynatree("getActiveNode").data.key);
+                Fraym.Menu.delMenuItem($("#menu-item-list").dynatree("getActiveNode"));
             } else {
                 Fraym.Notification.show('error', Fraym.Translation.Menu.NoItemSelected);
             }

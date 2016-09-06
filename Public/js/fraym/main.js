@@ -5,7 +5,17 @@
  * @license   http://www.opensource.org/licenses/gpl-license.php GNU General Public License, version 2 or later (see the LICENSE file)
  */
 var Fraym = {
-    
+    Admin: {},
+    Block: {},
+    ChangeSetManager: {},
+    ContentEditable: {},
+    FileManager: {},
+    Install: {},
+    Menu: {},
+    Notification: {},
+    Registry: {},
+    Translation: {},
+
     locales: [],
 
     getAjaxRequestUri: function() {

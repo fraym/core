@@ -189,7 +189,7 @@ class Route
      * @param $url
      * @param string $header
      */
-    public function redirectToURL($url, $header = 'HTTP/1.1 301 Moved Permanently')
+    public function redirectToUrl($url, $header = 'HTTP/1.1 301 Moved Permanently')
     {
         header($header);
         header("Location: $url");
@@ -442,17 +442,17 @@ class Route
     }
 
     /**
-     * @param $menuItem
+     * @param \Fraym\Menu\Entity\MenuItem $menuItem
      */
-    public function setCurrentMenuItem($menuItem)
+    public function setCurrentMenuItem(\Fraym\Menu\Entity\MenuItem $menuItem)
     {
         $this->currentMenuItem = $menuItem;
     }
 
     /**
-     * @param $menuItem
+     * @param \Fraym\Menu\Entity\MenuItemTranslation $menuItem
      */
-    public function setCurrentMenuItemTranslation($menuItem)
+    public function setCurrentMenuItemTranslation(\Fraym\Menu\Entity\MenuItemTranslation $menuItem)
     {
         $this->currentMenuItemTranslation = $menuItem;
     }
@@ -561,7 +561,7 @@ class Route
                         if (count($data->contextCallback) === 2) {
                             $menuItemTranslation = call_user_func([$this->serviceLocator->get($data->contextCallback[0]), $data->contextCallback[1]]);
                             if ($menuItemTranslation) {
-                                $this->template->setMainTemplate($menuItemTranslation->menuItem->template->html);
+                                $this->setupPage($menuItemTranslation);
                             }
                         }
 
@@ -689,7 +689,7 @@ class Route
     {
         $page404 = null;
         if ($this->currentMenuItem) {
-            $localeId = $this->session->get('localeId', false);
+            $localeId = $this->session->get('locale_id', false);
 
             $page404 = $this->db->createQueryBuilder()
                 ->select("menuItemTranslation, menuItem, template, site, locale")
@@ -707,6 +707,7 @@ class Route
             } else {
                 $page404 = $page404->andWhere('locale.default = 1');
             }
+
             $page404 = $page404
                 ->getQuery()
                 ->getOneOrNullResult();
@@ -718,7 +719,7 @@ class Route
             // cache the 404 page
             $this->cache->setCacheContent(404);
         } else {
-            error_log('Menu item not found or template not set! Solutions: Set a menu item template with the menu editor, reinstall Fraym or check your webserver configuration.');
+            error_log('Menu item not found or template not set! Solutions: Set a menu item template with the menu editor, reinstall Fraym or check your webserver configuration. Requested Uri: ' . $this->getRequestRoute());
             $this->response->sendHTTPStatusCode(500);
         }
         $this->response->finish(true, true);
@@ -736,7 +737,7 @@ class Route
             $this->db->setTranslatableLocale($menuItemTranslation->locale->locale);
             $this->template->setSiteTemplateDir($menuItemTranslation->menuItem->site->templateDir);
 
-            if($this->request->isXmlHttpRequest()) {
+            if($this->request->isXmlHttpRequest() || $this->user->isAdmin()) {
                 $localeId = $this->request->gp('locale_id');
                 if($localeId && is_numeric($localeId)) {
                     $this->locale->setLocale($localeId);
@@ -752,11 +753,12 @@ class Route
             $pageTitle = str_replace('[SITE_NAME]', $menuItemTranslation->menuItem->site->name, $pageTitle);
 
             $this->template->setPageTitle($pageTitle);
-            $this->template->setPageDescription($menuItemTranslation->longDescription);
+            $this->template->setPageDescription($menuItemTranslation->description);
             $this->template->setKeywords(explode(',', $menuItemTranslation->keywords));
 
             setlocale(LC_ALL, $this->locale->getLocale()->locale);
         } catch (Exception $e) {
+            error_log($e->getMessage());
             return false;
         }
 

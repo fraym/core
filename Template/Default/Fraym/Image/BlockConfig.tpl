@@ -13,6 +13,14 @@
   <input type="text" class="form-control" name="image[height]" value="{$blockConfig.image_height}">
 </div>
 <div class="form-group">
+  <label>{_('Max. image width', 'FRAYM_EXT_IMAGE_FILENAME_MAX_WIDTH')}</label>
+  <input type="text" class="form-control" name="image[max_width]" value="{$blockConfig.image_max_width}">
+</div>
+<div class="form-group">
+  <label>{_('Max. image height', 'FRAYM_EXT_IMAGE_FILENAME_MAX_HEIGHT')}</label>
+  <input type="text" class="form-control" name="image[max_height]" value="{$blockConfig.image_max_height}">
+</div>
+<div class="form-group">
   <label>{_('Image alt attribute', 'FRAYM_EXT_IMAGE_ALT_ATTR')}</label>
   <input type="text" class="form-control" name="image[alt]" value="{$blockConfig.image_alt}">
 </div>
@@ -56,11 +64,11 @@
 </div>
 <div class="form-group">
   <label>{_('Placeholder text color', 'FRAYM_EXT_IMAGE_PH_COLOR')}</label>
-  <input type="text" class="form-control" name="image[phcolor]" value="{$blockConfig.image_phcolor}">
+  <input type="color" class="form-control" name="image[phcolor]" value="{$blockConfig.image_phcolor}">
 </div>
 <div class="form-group">
   <label>{_('Placeholder background color', 'FRAYM_EXT_IMAGE_phbgcolor')}</label>
-  <input type="text" class="form-control" name="image[phbgcolor]" value="{$blockConfig.image_phbgcolor}">
+  <input type="color" class="form-control" name="image[phbgcolor]" value="{$blockConfig.image_phbgcolor}">
 </div>
 <div class="form-group">
   <label>{_('Placeholder font file', 'FRAYM_EXT_IMAGE_PH_FONT')}</label>

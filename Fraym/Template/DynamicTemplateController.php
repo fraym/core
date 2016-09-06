@@ -33,6 +33,12 @@ class DynamicTemplateController extends \Fraym\Core
     protected $block;
 
     /**
+     * @Inject
+     * @var \Fraym\Template\DynamicTemplate
+     */
+    protected $dynamicTemplate;
+
+    /**
      * @param $selectOptions
      * @param null $blockConfig
      */
@@ -63,6 +69,7 @@ class DynamicTemplateController extends \Fraym\Core
      */
     public function render($template, $locale, $variables, $dataSource = null)
     {
+        $this->view->assign('inEditMode', $this->block->inEditMode());
         $this->view->assign('refreshBlock', $this->block->inEditMode() && $this->request->isXmlHttpRequest());
         $this->view->assign('locale', $locale);
         $this->view->assign('dataSource', $dataSource);
@@ -72,5 +79,62 @@ class DynamicTemplateController extends \Fraym\Core
         } else {
             $this->view->setTemplate("string:");
         }
+    }
+
+    /**
+     * @Fraym\Annotation\Route("/fraym/dynamic-template/inline-editor-save", name="dynamicTemplateSaveInlineEditor", permission={"\Fraym\User\User"="isAdmin"})
+     */
+    public function saveDynamicTemplateInline() {
+        $field = $this->request->post('field');
+        $value = $this->request->post('value');
+        $blockId = $this->request->post('blockId');
+
+        // Get the block element
+        $block = $this->db->getRepository('\Fraym\Block\Entity\Block')->findOneById($blockId);
+
+        // Read the xml config from the block
+        $configXml = $this->blockParser->getXmlObjectFromString($this->blockParser->wrapBlockConfig($block));
+        $config = unserialize($configXml->dynamicTemplateConfig);
+
+        // Set new field value
+        $config->$field = $value;
+
+        // Create the new config xml date
+        $configXml->dynamicTemplateConfig = serialize($config);
+        $newConfig = $this->blockParser->getBlockConfig($this->blockParser->removeXmlHeader($configXml->asXML()));
+
+        // Save changes to new change set
+        $this->dynamicTemplate->createChangeSet($block, $newConfig);
+
+        $this->response->sendAsJson(['id' => $block->id]);
+    }
+
+    /**
+     * @Fraym\Annotation\Route("/fraym/load-dynamic-template-config", name="dynamicTemplateConfig", permission={"\Fraym\User\User"="isAdmin"})
+     */
+    public function loadDynamicTemplateConfig()
+    {
+        $template = $this->request->post('template');
+        $blockId = $this->request->post('blockId');
+        $variables = [];
+
+        if ($blockId) {
+            $block = $this->db->getRepository('\Fraym\Block\Entity\Block')->findOneById($blockId);
+            if ($block->changeSets->count()) {
+                $block = $block->changeSets->last();
+            }
+            $xml = $this->blockParser->getXmlObjectFromString($this->blockParser->wrapBlockConfig($block));
+            $variables = unserialize((string)$xml->dynamicTemplateConfig);
+        }
+
+        $localeResult = $this->db->getRepository('\Fraym\Locale\Entity\Locale')->findAll();
+
+        foreach ($localeResult as $locale) {
+            $locales[] = $locale->toArray(1);
+        }
+
+        $obj = $this->dynamicTemplate->getTemplateXmlObject($template);
+
+        return $this->renderConfig((string)$obj->template, $locales, $variables);
     }
 }

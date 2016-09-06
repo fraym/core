@@ -134,29 +134,24 @@ class MenuItem extends \Fraym\Entity\BaseEntity
     }
 
     /**
-     * @param null $route
-     * @param bool $with_protocol
+     * @param bool $absoluteUrl
      * @return string
      */
-    public function getUrl($route = null, $with_protocol = false)
+    public function getUrl($absoluteUrl = false)
     {
         if ($this->getCurrentTranslation() &&
             $this->getCurrentTranslation()->externalUrl) {
 
             return $this->getCurrentTranslation()->url;
         }
-        $url = ($route ?
-                rtrim($route->getCurrentDomain(), '/') : '') .
-                ($this->getCurrentTranslation() ? '/' .
-                    ltrim(
-                        $this->getCurrentTranslation()->url,
-                        '/'
-                    )
-                    : '');
 
-        if ($with_protocol === true) {
-            $url = ($this->https ? 'https://' : 'http://') . $url;
+        $route = $this->getServiceLocator()->get('Fraym\Route\Route');
+        $url = ($this->getCurrentTranslation() ? $this->getCurrentTranslation()->url : '/');
+
+        if ($absoluteUrl === true) {
+            $url = ($this->https ? 'https://' : 'http://') . rtrim($route->getCurrentDomain(), '/') .  $url;
         }
+
         return $url;
     }
 
