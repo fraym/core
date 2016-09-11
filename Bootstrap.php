@@ -22,7 +22,6 @@ if (is_file('Config.php')) {
 $classLoader = require 'Vendor/autoload.php';
 
 date_default_timezone_set(TIMEZONE);
-define('APC_ENABLED', (extension_loaded('apc') || extension_loaded('apcu')) && ini_get('apc.enabled'));
 define('CACHE_DI_PATH', 'Cache/DI');
 define('CACHE_DOCTRINE_PROXY_PATH', 'Cache/DoctrineProxies');
 define('JS_FOLDER', '/js');
@@ -39,11 +38,15 @@ if (\Fraym\Core::ENV_STAGING === ENV || \Fraym\Core::ENV_PRODUCTION === ENV) {
     ini_set("display_errors", 0);
     $builder->writeProxiesToFile(true, CACHE_DI_PATH);
     define('GLOBAL_CACHING_ENABLED', true);
+    $apcEnabled = (extension_loaded('apc') || extension_loaded('apcu')) && ini_get('apc.enabled');
 } else {
     error_reporting(-1);
     ini_set("display_errors", 1);
     define('GLOBAL_CACHING_ENABLED', false);
+    $apcEnabled = false;
 }
+
+define('APC_ENABLED', $apcEnabled);
 
 if (defined('IMAGE_PROCESSOR') && IMAGE_PROCESSOR === 'Imagick') {
     $builder->addDefinitions(['Imagine' => DI\object('Imagine\Imagick\Imagine')]);

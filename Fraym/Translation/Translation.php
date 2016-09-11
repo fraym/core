@@ -15,7 +15,7 @@ use Stichoza\GoogleTranslate\TranslateClient;
  */
 class Translation
 {
-    private $runtimeTranslationKeys = [];
+    protected $runtimeTranslationKeys = [];
 
     /**
      * @Inject
@@ -37,10 +37,11 @@ class Translation
 
     /**
      * @param $default
-     * @param string $defaultLocale
      * @param null $key
+     * @param string $defaultLocale
      * @param array $placeholder
-     * @return null|string
+     * @return mixed|null|string
+     * @throws \Exception
      */
     public function getTranslation($default, $key = null, $defaultLocale = 'en_US', $placeholder = [])
     {
@@ -93,7 +94,7 @@ class Translation
      * @param $defaultLocale
      * @return mixed
      */
-    private function updateTranslationLocales($translation, $defaultValue, $locale, $defaultLocale)
+    protected function updateTranslationLocales($translation, $defaultValue, $locale, $defaultLocale)
     {
         $em = $this->db;
 
@@ -158,7 +159,7 @@ class Translation
      * @param string $defaultLocale
      * @return Entity\Translation|mixed|object
      */
-    private function getTranslationEntity($key, $locale, $default = '', $defaultLocale = 'en_US')
+    protected function getTranslationEntity($key, $locale, $default = '', $defaultLocale = 'en_US')
     {
         $translationString = (empty($default) ? $key : $default);
 
@@ -174,10 +175,12 @@ class Translation
         if (isset($translations[$locale])) {
             return (object)$translations[$locale];
         } elseif ($this->locale->getLocale()->locale == $locale) {
-
             $translation->locale = $locale;
-            $this->db->refresh($translation);
-            $this->db->clear();
+            try {
+                $this->db->refresh($translation);
+            } catch (\Exception $e) {
+                error_log($e->getMessage());
+            }
             return $translation;
         } else {
             return $this->updateTranslationLocales($translation, $translationString, $locale, $defaultLocale);
@@ -193,7 +196,7 @@ class Translation
      * @param $defaultLocale
      * @return string
      */
-    private function getTranslatedValue($key, $locale, $defaultLocale)
+    protected function getTranslatedValue($key, $locale, $defaultLocale)
     {
         $em = $this->db;
         $translation = $em->getRepository('\Fraym\Translation\Entity\Translation')->findOneByKey($key);

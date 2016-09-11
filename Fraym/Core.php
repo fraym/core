@@ -31,33 +31,33 @@ class Core
     /**
      * Eval code
      */
-    private $scriptCode = null;
+    protected $scriptCode = null;
 
     /**
      * @var array
      */
-    private $timerStartTime = [];
+    protected $timerStartTime = [];
 
     /**
      * @var array
      */
-    private $timerStartTimeByKey = [];
+    protected $timerStartTimeByKey = [];
 
     /**
      * @var bool
      */
-    private $applicationDir = false;
+    protected $applicationDir = false;
 
     /**
      * @var int
      */
-    private $mode = self::ROUTE_NORMAL;
+    protected $mode = self::ROUTE_NORMAL;
 
     /**
      * @Inject
      * @var \Fraym\Template\Template
      */
-    private $template;
+    protected $template;
 
     /**
      * @Inject

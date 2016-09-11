@@ -17,7 +17,7 @@ class Locale
     /**
      * @var null
      */
-    private $locale = null;
+    protected $locale = null;
 
     /**
      * @Inject

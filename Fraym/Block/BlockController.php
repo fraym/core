@@ -183,7 +183,7 @@ class BlockController extends \Fraym\Core
     /**
      *
      */
-    private function clearCache()
+    protected function clearCache()
     {
         $this->cache->clearAll();
         $this->response->sendAsJson(['success' => true]);
@@ -192,7 +192,7 @@ class BlockController extends \Fraym\Core
     /**
      *
      */
-    private function setEditMode()
+    protected function setEditMode()
     {
         $value = $this->request->gp('value');
         if (empty($value)) {
@@ -422,7 +422,7 @@ class BlockController extends \Fraym\Core
     /**
      * Executes the extension function to render the view for the extension config.
      */
-    private function getExtensionConfigView()
+    protected function getExtensionConfigView()
     {
         $id = $this->request->gp('id', false);
         $blockId = $this->request->gp('blockId', null);
@@ -444,7 +444,7 @@ class BlockController extends \Fraym\Core
     /**
      * Move/saves the block to a html content element with the contentId.
      */
-    private function moveBlockToView()
+    protected function moveBlockToView()
     {
         $blocks = $this->request->gp('blocks', []);
 
@@ -476,7 +476,7 @@ class BlockController extends \Fraym\Core
     /**
      * Delete a block
      */
-    private function deleteBlock()
+    protected function deleteBlock()
     {
         $blockId = $this->request->gp('blockId', false);
         if ($blockId && ($block = $this->db->getRepository('\Fraym\Block\Entity\Block')->findOneById($blockId))) {
@@ -496,7 +496,7 @@ class BlockController extends \Fraym\Core
      * @param $type
      * @return Entity\ChangeSet
      */
-    private function createChangeSet($changedBlock, $parentBlock, $type)
+    protected function createChangeSet($changedBlock, $parentBlock, $type)
     {
         $changeSet = new \Fraym\Block\Entity\ChangeSet();
         $changeSet->contentId = $changedBlock->contentId;
@@ -522,7 +522,7 @@ class BlockController extends \Fraym\Core
     /**
      * Paste copied block
      */
-    private function pasteBlock()
+    protected function pasteBlock()
     {
         $blockId = $this->request->gp('blockId');
         $op = $this->request->gp('op', 'copy') == 'copy' ? 'copy' : 'cut';

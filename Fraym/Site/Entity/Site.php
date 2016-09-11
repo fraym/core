@@ -16,7 +16,8 @@ use Fraym\Menu\Entity\MenuItemTranslation;
  * Class Site
  * @package Fraym\Site\Entity
  * @ORM\Table(name="sites")
- * @ORM\Entity @ORM\HasLifecycleCallbacks
+ * @ORM\Entity
+ * @ORM\HasLifecycleCallbacks
  */
 class Site extends \Fraym\Entity\BaseEntity
 {
@@ -93,11 +94,17 @@ class Site extends \Fraym\Entity\BaseEntity
         $this->menuItems = new \Doctrine\Common\Collections\ArrayCollection();
         $this->domains = new \Doctrine\Common\Collections\ArrayCollection();
         $this->blocks = new \Doctrine\Common\Collections\ArrayCollection();
-        $menuItemTranslation = new MenuItemTranslation();
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function createMenu() {
+        $menuItemTranslation = new \Fraym\Menu\Entity\MenuItemTranslation();
         $menuItemTranslation->title = 'Home';
         $menuItemTranslation->subtitle = '';
         $menuItemTranslation->url = '';
-        $menuItem = new MenuItem();
+        $menuItem = new \Fraym\Menu\Entity\MenuItem();
         $menuItemTranslation->menuItem = $menuItem;
         $menuItem->site = $this;
         $menuItem->translations->add($menuItemTranslation);

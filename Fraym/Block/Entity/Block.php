@@ -19,7 +19,6 @@ use Fraym\Annotation\LifecycleCallback;
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"block" = "Block", "change_set" = "ChangeSet"})
- * @LifecycleCallback(postPersist={"\Fraym\Block\Block"="clearCache"}, onFlush={"\Fraym\Block\Block"="clearCache"})
  */
 class Block extends \Fraym\Entity\BaseEntity
 {

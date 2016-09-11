@@ -27,7 +27,7 @@ class BlockParser
     /**
      * @var array
      */
-    private $customBlockTypes = [];
+    protected $customBlockTypes = [];
 
     /**
      * Holds the current parsing blocks.
@@ -35,61 +35,54 @@ class BlockParser
      *
      * @var array
      */
-    private $parsingBlockIds = [];
+    protected $parsingBlockIds = [];
 
     /**
      * all Template placeholders
      *
      * @var array
      */
-    private $placeholderReplacement = [];
+    protected $placeholderReplacement = [];
 
     /**
      * @var array
      */
-    private $executedBlocks = [];
+    protected $executedBlocks = [];
 
     /**
      * current block sequence
      *
      * @var bool
      */
-    private $sequence = false;
+    protected $sequence = false;
 
     /**
      * current parsing Xml string
      *
      * @var string
      */
-    private $xmlString = '';
-
-    /**
-     * status of testing whether a virutal route was found
-     *
-     * @var bool
-     */
-    private $checkRouteError = false;
+    protected $xmlString = '';
 
     /**
      * flag for module route checking to prevent module execution
      *
      * @var bool
      */
-    private $execModule = true;
+    protected $execModule = true;
 
     /**
      * the current parsing mode for cached block elements
      *
      * @var bool
      */
-    private $cached = false;
+    protected $cached = false;
 
     /**
      * Defines the module types that can be edited in frontend. The empty type are the default "module" type.
      *
      * @var array
      */
-    private $editModeTypes = ['module', 'content', ''];
+    protected $editModeTypes = ['module', 'content', ''];
 
     /**
      * @Inject
@@ -440,6 +433,17 @@ class BlockParser
     }
 
     /**
+     * If block is a change set return the base block
+     *
+     * @param $id
+     * @return mixed
+     */
+    protected function getBaseBlock($id) {
+        $block = $this->db->getRepository('\Fraym\Block\Entity\Block')->findOneById($id);
+        return $block->block ? $block->block : $block;
+    }
+
+    /**
      * @param $xmlString
      * @return bool|mixed|string
      * @throws \Exception
@@ -462,8 +466,15 @@ class BlockParser
 
         if ($this->getXmlAttr($xml, 'id')) {
             // interleaved unique content elements -> push element
-            $this->parsingBlockIds[$this->getXmlAttr($xml, 'id')] = $this->getXmlAttr($xml, 'id');
-            $this->core->startTimer('blockExecution_' . $this->getXmlAttr($xml, 'id'));
+            if($this->user->isAdmin()) {
+                $block = $this->getBaseBlock($this->getXmlAttr($xml, 'id'));
+                $blockId = $block->id;
+            } else {
+                $blockId = $this->getXmlAttr($xml, 'id');
+            }
+
+            $this->parsingBlockIds[$blockId] = $blockId;
+            $this->core->startTimer('blockExecution_' . $blockId);
         };
 
         if ($this->getXmlAttr($xml, 'cached') == '1') {
@@ -517,7 +528,7 @@ class BlockParser
      * @param $xml
      * @return string
      */
-    private function execBlockOfTypeExtension($xml)
+    protected function execBlockOfTypeExtension($xml)
     {
         $blockHtml = '';
         if (is_object($xml)) {
@@ -545,7 +556,7 @@ class BlockParser
      * @param $xml
      * @return bool
      */
-    private function isBlockCached($xml)
+    protected function isBlockCached($xml)
     {
         return !$this->request->isPost() && $this->getXmlAttr($xml, 'cached') &&
         $this->cached === false &&
@@ -558,55 +569,55 @@ class BlockParser
      * @param $blockHtml
      * @return mixed|\SimpleXMLElement|string
      */
-    private function processBlockAttributes($xml, $blockHtml)
+    protected function processBlockAttributes($xml, $blockHtml)
     {
         $blockType = strtolower($this->getXmlAttr($xml, 'type'));
-        if ($this->request->isXmlHttpRequest() === false) {
-            if ($this->block->inEditMode() && in_array($blockType, $this->editModeTypes)) {
-                $block = null;
 
-                if (($this->getXmlAttr($xml, 'type') === 'extension' ||
-                        $this->getXmlAttr(
-                            $xml,
-                            'type'
-                        ) === null) &&
-                    ($id = $this->getXmlAttr($xml, 'id'))
-                ) {
-                    $block = $this->db->getRepository('\Fraym\Block\Entity\Block')->findOneById($id);
-                }
-                $editable = $this->getXmlAttr($xml, 'editable');
-                if ($editable === true || $editable === null) {
+        if ($this->block->inEditMode() && in_array($blockType, $this->editModeTypes)) {
+            $block = null;
 
-                    // interleaved unique content elements -> pop last element
-                    if (end($this->parsingBlockIds) === $this->getXmlAttr($xml, 'id')) {
-                        array_pop($this->parsingBlockIds);
-                    }
-
-                    $blockHtml = $this->blockController->addBlockInfo($block, $blockHtml, $xml);
-                }
-            }
-
-            // Disable cache on block attribute or on element level
-            if ($this->getXmlAttr($xml, 'cached') != '1' &&
-                (
+            if (($this->getXmlAttr($xml, 'type') === 'extension' ||
                     $this->getXmlAttr(
                         $xml,
-                        'cache'
-                    ) === false ||
-                    (isset($xml->cache) && $xml->cache == 0 && !$this->request->isPost() && GLOBAL_CACHING_ENABLED === true &&
-                        $this->route->getCurrentMenuItem()->caching === true)
-                )
+                        'type'
+                    ) === null) &&
+                ($id = $this->getXmlAttr($xml, 'id'))
             ) {
-                $blockHtml = $this->disableBlockCaching($xml);
-            } else {
-                // add block state to check permission or end/start date on caching
-                $blockHtml = $this->addBlockCacheState($xml, $blockHtml);
+                $block = $this->db->getRepository('\Fraym\Block\Entity\Block')->findOneById($id);
             }
+            $editable = $this->getXmlAttr($xml, 'editable');
+            if ($editable === true || $editable === null) {
 
-            if ($this->getXmlAttr($xml, 'placeholder') !== null) {
-                return $this->addPlaceholderReplacement($xml, $blockHtml);
+                // interleaved unique content elements -> pop last element
+                if (end($this->parsingBlockIds) == $this->getXmlAttr($xml, 'id')) {
+                    array_pop($this->parsingBlockIds);
+                }
+
+                $blockHtml = $this->blockController->addBlockInfo($block, $blockHtml, $xml, true);
             }
         }
+
+        // Disable cache on block attribute or on element level
+        if ($this->getXmlAttr($xml, 'cached') != '1' &&
+            (
+                $this->getXmlAttr(
+                    $xml,
+                    'cache'
+                ) === false ||
+                (isset($xml->cache) && $xml->cache == 0 && !$this->request->isPost() && GLOBAL_CACHING_ENABLED === true &&
+                    $this->route->getCurrentMenuItem()->caching === true)
+            )
+        ) {
+            $blockHtml = $this->disableBlockCaching($xml);
+        } else {
+            // add block state to check permission or end/start date on caching
+            $blockHtml = $this->addBlockCacheState($xml, $blockHtml);
+        }
+
+        if ($this->getXmlAttr($xml, 'placeholder') !== null) {
+            return $this->addPlaceholderReplacement($xml, $blockHtml);
+        }
+
         return $blockHtml;
     }
 
@@ -614,7 +625,7 @@ class BlockParser
      * @param $xml
      * @return string
      */
-    private function execBlockOfTypeCache($xml)
+    protected function execBlockOfTypeCache($xml)
     {
         if (($this->sequence === false && !$this->getXmlAttr($xml, 'sequence')) ||
             ($this->sequence !== false && $this->getXmlAttr($xml, 'cached'))
@@ -632,7 +643,7 @@ class BlockParser
      * @param $xml
      * @return string
      */
-    private function execBlockOfTypePhp($xml)
+    protected function execBlockOfTypePhp($xml)
     {
         if (($this->sequence === false && !$this->getXmlAttr($xml, 'sequence')) ||
             ($this->sequence !== false && $this->sequence === $this->getXmlAttr($xml, 'sequence'))
@@ -652,7 +663,7 @@ class BlockParser
      * @param $blockHtml
      * @return string
      */
-    private function addBlockCacheState($xml, $blockHtml)
+    protected function addBlockCacheState($xml, $blockHtml)
     {
         if ($this->block->inEditMode() === false &&
             (isset($xml->permissions) || isset($xml->startDate) || isset($xml->endDate))
@@ -672,7 +683,7 @@ class BlockParser
      * @return null|string
      * @throws \Exception
      */
-    private function getBlockTemplateString($xml)
+    protected function getBlockTemplateString($xml)
     {
         $attr = strtolower($this->getXmlAttr($xml->children()->template, 'type'));
         $template = trim((string)$xml->children()->template);
@@ -701,7 +712,7 @@ class BlockParser
      * @param $xml
      * @return bool|mixed|string
      */
-    private function setBlockTemplateWrap($xml)
+    protected function setBlockTemplateWrap($xml)
     {
         $templateContent = $this->getBlockTemplateString($xml);
         if (empty($templateContent)) {
@@ -718,7 +729,7 @@ class BlockParser
      * @param $value
      * @return mixed
      */
-    private function addPlaceholderReplacement($xml, $value)
+    protected function addPlaceholderReplacement($xml, $value)
     {
         $attr = $this->getXmlAttr($xml, 'placeholder');
         $this->placeholderReplacement[$attr] = $value;
@@ -729,7 +740,7 @@ class BlockParser
      * @param $xml
      * @return \SimpleXMLElement
      */
-    private function disableBlockCaching($xml)
+    protected function disableBlockCaching($xml)
     {
         unset($xml['cache']);
 
@@ -822,7 +833,7 @@ class BlockParser
      * @param null $contentId
      * @return mixed|string
      */
-    private function getDataFromBlocksByContentId($contentId = null)
+    protected function getDataFromBlocksByContentId($contentId = null)
     {
         $html = '';
         $blocks = $this->findBlocks($this->route->getCurrentMenuItem()->id, $contentId);
@@ -873,7 +884,10 @@ class BlockParser
      */
     public function wrapBlockConfig($block)
     {
-        $block = $block->changeSets->count() ? $block->changeSets->last() : $block;
+        if($this->user->isAdmin()) {
+            $block = $block->changeSets->count() ? $block->changeSets->last() : $block;
+        }
+
         $blockConfigXml = $block->getConfig($this->user->isAdmin());
 
         $dom = new \DOMDocument;
@@ -983,50 +997,59 @@ class BlockParser
             throw new \Exception("Image method '{$method}' is not allowed.");
         }
 
-        $this->imageEditor = $this->imageEditor->setImageQuality($imageQuality)->setImageHash($xml->asXML())->setImageFormat($imageFormat);
+        $this->imageEditor = $this->imageEditor->setImageQuality($imageQuality)->setImageHash($xml->asXML());
+
+        if($imageFormat) {
+            $this->imageEditor = $this->imageEditor->setImageFormat($imageFormat);
+        }
 
         if ($this->imageEditor->imageExists() === false) {
+            try {
+                if ($method === 'resize') {
 
-            if ($method === 'resize') {
-                $this->imageEditor
-                    ->setImageWidth($imageTags['width'])
-                    ->setImageHeight($imageTags['height'])
-                    ->setImageMaxWidth($imageMaxWidth)
-                    ->setImageMaxHeight($imageMaxHeight)
-                    ->imageResize();
+                    $this->imageEditor
+                        ->setImageWidth($imageTags['width'])
+                        ->setImageHeight($imageTags['height'])
+                        ->setImageMaxWidth($imageMaxWidth)
+                        ->setImageMaxHeight($imageMaxHeight)
+                        ->imageResize();
 
-                $imageTags['width'] = $imageTags['width'] ? : $this->imageEditor->getImage()->getSize()->getWidth();
-                $imageTags['height'] = $imageTags['height'] ? : $this->imageEditor->getImage()->getSize()->getHeight();
+                    $imageTags['width'] = $imageTags['width'] ? : $this->imageEditor->getImage()->getSize()->getWidth();
+                    $imageTags['height'] = $imageTags['height'] ? : $this->imageEditor->getImage()->getSize()->getHeight();
 
-            } elseif ($method === 'thumbnail') {
+                } elseif ($method === 'thumbnail') {
 
-                if ($mode == 'outbound') {
-                    $mode = \Imagine\Image\ImageInterface::THUMBNAIL_OUTBOUND;
+                    if ($mode == 'outbound') {
+                        $mode = \Imagine\Image\ImageInterface::THUMBNAIL_OUTBOUND;
+                    } else {
+                        $mode = \Imagine\Image\ImageInterface::THUMBNAIL_INSET;
+                    }
+
+                    $this->imageEditor = $this->imageEditor
+                        ->setImageWidth($imageTags['width'])
+                        ->setImageHeight($imageTags['height'])
+                        ->imageThumbnail($mode);
+
+                    $imageTags['width'] = $this->imageEditor->getImage()->getSize()->getWidth();
+                    $imageTags['height'] = $this->imageEditor->getImage()->getSize()->getHeight();
+
                 } else {
-                    $mode = \Imagine\Image\ImageInterface::THUMBNAIL_INSET;
+                    $imageTags['width'] = $imageTags['width'] ? : $this->imageEditor->getImage()->getSize()->getWidth();
+                    $imageTags['height'] = $imageTags['height'] ? : $this->imageEditor->getImage()->getSize()->getHeight();
+                    $this->imageEditor = $this->imageEditor
+                        ->setImageWidth($imageTags['width'])
+                        ->setImageHeight($imageTags['height']);
                 }
 
-                $this->imageEditor = $this->imageEditor
-                    ->setImageWidth($imageTags['width'])
-                    ->setImageHeight($imageTags['height'])
-                    ->imageThumbnail($mode);
+                if ($crop) {
+                    $this->imageEditor = $this->imageEditor->imageCrop($crop[0], $crop[1], $crop[2], $crop[3]);
+                }
 
-                $imageTags['width'] = $this->imageEditor->getImage()->getSize()->getWidth();
-                $imageTags['height'] = $this->imageEditor->getImage()->getSize()->getHeight();
-
-            } else {
-                $imageTags['width'] = $imageTags['width'] ? : $this->imageEditor->getImage()->getSize()->getWidth();
-                $imageTags['height'] = $imageTags['height'] ? : $this->imageEditor->getImage()->getSize()->getHeight();
-                $this->imageEditor = $this->imageEditor
-                    ->setImageWidth($imageTags['width'])
-                    ->setImageHeight($imageTags['height']);
+                $imagePath = $this->imageEditor->save();
+            } catch(\Exception $e) {
+                error_log('Image not found: "' . $src . '" Block ID: ' . end($this->parsingBlockIds));
+                return '';
             }
-
-            if ($crop) {
-                $this->imageEditor = $this->imageEditor->imageCrop($crop[0], $crop[1], $crop[2], $crop[3]);
-            }
-
-            $imagePath = $this->imageEditor->save();
         } else {
             $imagePath = $this->imageEditor->getImagePath();
             list($width, $height) = getimagesize('Public' . DIRECTORY_SEPARATOR . $imagePath);
@@ -1055,7 +1078,7 @@ class BlockParser
      * @param $xml
      * @return bool|null|string
      */
-    private function getContentId(&$xml)
+    protected function getContentId(&$xml)
     {
         $contentId = $this->getXmlAttr($xml, 'id');
         $unique = $this->getXmlAttr($xml, 'unique') === true ? true : false;
@@ -1070,7 +1093,7 @@ class BlockParser
      * @param $xml
      * @return string
      */
-    private function execBlockOfTypeContent($xml)
+    protected function execBlockOfTypeContent($xml)
     {
         $html = '';
         foreach ($xml->children() as $child) {
@@ -1107,7 +1130,7 @@ class BlockParser
      * @param $xml
      * @return array|string
      */
-    private function contentChildViews($xml)
+    protected function contentChildViews($xml)
     {
         $childsHtml = [];
         foreach ($xml->children() as $child) {
@@ -1204,7 +1227,7 @@ class BlockParser
      * @param $xml
      * @return string
      */
-    private function execBlockOfTypeLink($xml)
+    protected function execBlockOfTypeLink($xml)
     {
         $menuItemId = $this->getXmlAttr($xml->a, 'href');
         $translation = $this->getXmlAttr($xml, 'translation');
@@ -1228,7 +1251,7 @@ class BlockParser
      * @param $xml
      * @return string
      */
-    private function execBlockOfTypeModule($xml)
+    protected function execBlockOfTypeModule($xml)
     {
         $html = '';
 
@@ -1258,7 +1281,7 @@ class BlockParser
      * @param $xml
      * @return string
      */
-    private function execBlockOfTypeCss($xml)
+    protected function execBlockOfTypeCss($xml)
     {
         $consolidatedContent = '';
 
@@ -1380,7 +1403,7 @@ class BlockParser
      * @param $xml
      * @return string
      */
-    private function execBlockOfTypeJS($xml)
+    protected function execBlockOfTypeJS($xml)
     {
         $consolidatedContent = '';
 
@@ -1447,7 +1470,7 @@ class BlockParser
      * @param $consolidatedContent
      * @return string
      */
-    private function consolidateJs($consolidatedJsFilePath, $consolidatedContent)
+    protected function consolidateJs($consolidatedJsFilePath, $consolidatedContent)
     {
         $dir = 'Public' . dirname($consolidatedJsFilePath);
         if (!is_dir($dir)) {

@@ -17,7 +17,7 @@ class Response
     /**
      * @var array
      */
-    private $httpStatusCodes = [
+    protected $httpStatusCodes = [
         100 => 'HTTP/1.1 100 Continue',
         101 => 'HTTP/1.1 101 Switching Protocols',
         200 => 'HTTP/1.1 200 OK',

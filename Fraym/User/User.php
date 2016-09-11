@@ -17,22 +17,22 @@ class User
     /**
      * @var bool
      */
-    private $isLoggedIn = false;
+    protected $isLoggedIn = false;
 
     /**
      * @var bool
      */
-    private $userId = false;
+    protected $userId = false;
 
     /**
      * @var bool
      */
-    private $user = false;
+    protected $user = false;
 
     /**
      * @var null|bool
      */
-    private $isAdmin = null;
+    protected $isAdmin = null;
 
     /**
      * @Inject
@@ -162,6 +162,7 @@ class User
     public function login($email, $password, $staySignedIn = false) {
         $user = $this->db->getRepository('\Fraym\User\Entity\User')->findOneBy(['email' => $email]);
         if ($user && $user->verifyPassword($password)) {
+            $user->lastLogin = new \DateTime();
             $this->setUserId($user->id);
 
             if ($staySignedIn) {
@@ -188,7 +189,6 @@ class User
         if ($this->user && $this->userId === false) {
             $this->isLoggedIn = true;
             $this->user->isOnline = true;
-            $this->user->lastLogin = new \DateTime();
             $this->db->persist($this->user);
             $this->db->flush();
         }

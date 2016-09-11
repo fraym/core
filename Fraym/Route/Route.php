@@ -21,54 +21,54 @@ class Route
     /**
      * @var string
      */
-    private $sitefullRoute = '';
+    protected $sitefullRoute = '';
 
     /**
      * @var string
      */
-    private $addionalRoute = '';
+    protected $addionalRoute = '';
 
     /**
      * @var null
      */
-    private $routeMatches = [];
+    protected $routeMatches = [];
 
     /**
      * @var bool
      */
-    private $forcePageLoad = false;
+    protected $forcePageLoad = false;
 
     /**
      * holds all routes by url
      *
      * @var array
      */
-    private $moduleRoutes = [];
+    protected $moduleRoutes = [];
 
     /**
      * @var bool
      */
-    private $currentDomain = false;
+    protected $currentDomain = false;
 
     /**
      * @var bool|\Fraym\Menu\Entity\MenuItem
      */
-    private $currentMenuItem = false;
+    protected $currentMenuItem = false;
 
     /**
      * @var bool|\Fraym\Menu\Entity\MenuItemTranslation
      */
-    private $currentMenuItemTranslation = false;
+    protected $currentMenuItemTranslation = false;
 
     /**
      * @var bool
      */
-    private $siteMenu = false;
+    protected $siteMenu = false;
 
     /**
      * @var array
      */
-    private $virutalRoutes = [];
+    protected $virutalRoutes = [];
 
     /**
      * @Inject
@@ -189,7 +189,7 @@ class Route
      * @param $url
      * @param string $header
      */
-    public function redirectToURL($url, $header = 'HTTP/1.1 301 Moved Permanently')
+    public function redirectToUrl($url, $header = 'HTTP/1.1 301 Moved Permanently')
     {
         header($header);
         header("Location: $url");
@@ -223,7 +223,7 @@ class Route
     /**
      * @return $this
      */
-    private function initExtensionRoutes()
+    protected function initExtensionRoutes()
     {
         // Init only for admins
         if (!$this->user->isAdmin()) {
@@ -243,7 +243,7 @@ class Route
     /**
      * @param $class
      */
-    private function initClassAnnotationRoutes($class)
+    protected function initClassAnnotationRoutes($class)
     {
         $routeAnnotation = 'Fraym\Annotation\Route';
 
@@ -276,7 +276,7 @@ class Route
     /**
      * @return $this
      */
-    private function initAnnotationRoutes()
+    protected function initAnnotationRoutes()
     {
         \Doctrine\Common\Annotations\AnnotationRegistry::registerFile($this->core->getApplicationDir() . '/Fraym/Annotation/Route.php');
 
@@ -390,7 +390,7 @@ class Route
      *
      * @return array|bool
      */
-    private function parseRoute()
+    protected function parseRoute()
     {
         $fullMenuItemUrl = '';
         $requestedRoute = $this->getRequestRoute(true, false);
@@ -458,7 +458,7 @@ class Route
     }
 
     /**
-     * Returns the current site menu root that is active and visible
+     * Returns the current site menu root
      *
      * @return bool
      */
@@ -466,7 +466,7 @@ class Route
     {
         if (!$this->siteMenu) {
             $this->siteMenu = $this->db->getRepository('\Fraym\Menu\Entity\MenuItem')->findOneBy(
-                ['parent' => null, 'site' => $this->getCurrentMenuItem()->site->id, 'active' => 1, 'visible' => 1]
+                ['parent' => null, 'site' => $this->getCurrentMenuItem()->site->id]
             );
         }
         return $this->siteMenu;
@@ -561,7 +561,7 @@ class Route
                         if (count($data->contextCallback) === 2) {
                             $menuItemTranslation = call_user_func([$this->serviceLocator->get($data->contextCallback[0]), $data->contextCallback[1]]);
                             if ($menuItemTranslation) {
-                                $this->template->setMainTemplate($menuItemTranslation->menuItem->template->html);
+                                $this->setupPage($menuItemTranslation);
                             }
                         }
 
@@ -642,7 +642,7 @@ class Route
 
             $virtualRouteContent = $this->getVirtualRouteContent();
 
-            $this->sitefullRoute = rtrim($this->buildFullUrl($this->currentMenuItem), '/');
+            $this->sitefullRoute = $this->currentMenuItem->getUrl(true);
 
             if ($virtualRouteContent !== false) {
                 // virtual route content
@@ -689,7 +689,7 @@ class Route
     {
         $page404 = null;
         if ($this->currentMenuItem) {
-            $localeId = $this->session->get('localeId', false);
+            $localeId = $this->session->get('locale_id', false);
 
             $page404 = $this->db->createQueryBuilder()
                 ->select("menuItemTranslation, menuItem, template, site, locale")
@@ -707,6 +707,7 @@ class Route
             } else {
                 $page404 = $page404->andWhere('locale.default = 1');
             }
+
             $page404 = $page404
                 ->getQuery()
                 ->getOneOrNullResult();
@@ -718,7 +719,7 @@ class Route
             // cache the 404 page
             $this->cache->setCacheContent(404);
         } else {
-            error_log('Menu item not found or template not set! Solutions: Set a menu item template with the menu editor, reinstall Fraym or check your webserver configuration.');
+            error_log('Menu item not found or template not set! Solutions: Set a menu item template with the menu editor, reinstall Fraym or check your webserver configuration. Requested Uri: ' . $this->getRequestRoute());
             $this->response->sendHTTPStatusCode(500);
         }
         $this->response->finish(true, true);
@@ -727,8 +728,9 @@ class Route
     /**
      * @param $menuItemTranslation
      * @return bool
+     * @throws \Exception
      */
-    private function setupPage($menuItemTranslation)
+    protected function setupPage($menuItemTranslation)
     {
         try {
             $this->currentMenuItemTranslation = $menuItemTranslation;
@@ -736,10 +738,12 @@ class Route
             $this->db->setTranslatableLocale($menuItemTranslation->locale->locale);
             $this->template->setSiteTemplateDir($menuItemTranslation->menuItem->site->templateDir);
 
-            if($this->request->isXmlHttpRequest()) {
+            if($this->request->isXmlHttpRequest() || $this->user->isAdmin()) {
                 $localeId = $this->request->gp('locale_id');
                 if($localeId && is_numeric($localeId)) {
                     $this->locale->setLocale($localeId);
+                } else {
+                    $this->locale->setLocale($menuItemTranslation->locale);
                 }
             } else {
                 $this->locale->setLocale($menuItemTranslation->locale);
@@ -752,12 +756,12 @@ class Route
             $pageTitle = str_replace('[SITE_NAME]', $menuItemTranslation->menuItem->site->name, $pageTitle);
 
             $this->template->setPageTitle($pageTitle);
-            $this->template->setPageDescription($menuItemTranslation->longDescription);
+            $this->template->setPageDescription($menuItemTranslation->description);
             $this->template->setKeywords(explode(',', $menuItemTranslation->keywords));
 
             setlocale(LC_ALL, $this->locale->getLocale()->locale);
         } catch (Exception $e) {
-            return false;
+            throw new \Exception('Error setup page: ' . $e->getMessage());
         }
 
         return true;
@@ -767,7 +771,7 @@ class Route
      * @param \Fraym\Menu\Entity\MenuItemTranslation $page404
      * @return bool|void
      */
-    private function render404Site(\Fraym\Menu\Entity\MenuItemTranslation $page404)
+    protected function render404Site(\Fraym\Menu\Entity\MenuItemTranslation $page404)
     {
         $this->setupPage($page404);
         $this->response->sendHTTPStatusCode(404);
@@ -867,8 +871,7 @@ class Route
      */
     public function getFoundUri($withProtocol = true)
     {
-        $menu = $this->currentMenuItem;
-        return (!empty($this->sitefullRoute) ? ($withProtocol ? ($this->isHttps($menu) ? 'https://' : 'http://') : '') . $this->sitefullRoute : '');
+        return $withProtocol ? $this->sitefullRoute : str_ireplace(['https://', 'http://'], '', $this->sitefullRoute);
     }
 
     /**
@@ -903,36 +906,6 @@ class Route
                 isset($urlParts['query']) ? '?' . $urlParts['query'] : '');
     }
 
-
-    /**
-     * @param Fraym\Menu\Entity\MenuItem|Fraym\Menu\Entity\MenuItemTranslation $menuItem
-     * @param bool $withProtocol
-     * @return string
-     */
-    public function buildFullUrl($menuItem, $withProtocol = false)
-    {
-        if (get_class($menuItem) === 'Fraym\Menu\Entity\MenuItem') {
-            $translation = $menuItem->getCurrentTranslation();
-        } else {
-            $translation = $menuItem;
-        }
-
-        if ($translation &&
-            $translation->externalUrl) {
-            return $translation->url;
-        }
-
-        $url = rtrim($this->getCurrentDomain(), '/') . '/' .
-            ($translation ?
-                ltrim($translation->url, '/')
-                : '');
-
-        if ($withProtocol === true) {
-            $url = ($this->isHttps($menuItem) ? 'https://' : 'http://') . $url;
-        }
-
-        return $url;
-    }
 
     /**
      * Converts a string to a URI string

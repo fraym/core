@@ -17,7 +17,7 @@ class FileManagerController extends \Fraym\Core
     /**
      * @var array
      */
-    private $_uploadErrors = [
+    protected $_uploadErrors = [
         0 => "There is no error, the file uploaded with success",
         1 => "The uploaded file exceeds the upload_max_filesize directive in php.ini",
         2 => "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form",
@@ -135,7 +135,7 @@ class FileManagerController extends \Fraym\Core
      * @param $filename
      * @return bool
      */
-    private function createFileFromChunks($savePath, $filename)
+    protected function createFileFromChunks($savePath, $filename)
     {
         $totalSize = $this->request->gp('resumableTotalSize');
         $tempFile = $this->getChunkFile();
@@ -166,7 +166,7 @@ class FileManagerController extends \Fraym\Core
      *
      * @return string
      */
-    private function getChunkFile()
+    protected function getChunkFile()
     {
         $chunkNumber = $this->request->gp('resumableChunkNumber', false);
         $identifier = $this->request->gp('resumableIdentifier');
@@ -180,7 +180,7 @@ class FileManagerController extends \Fraym\Core
      *
      * @return bool
      */
-    private function chunkExists()
+    protected function chunkExists()
     {
         $totalSize = $this->request->gp('resumableTotalSize');
         $currentChunkSize = $this->request->gp('resumableCurrentChunkSize');
@@ -201,7 +201,7 @@ class FileManagerController extends \Fraym\Core
      * Get files from a path
      * Context: POST
      */
-    private function getFiles()
+    protected function getFiles()
     {
         $path = $this->request->post('path');
         $storage = $this->request->post('storage');
@@ -219,7 +219,7 @@ class FileManagerController extends \Fraym\Core
      * Get the file preview icon.
      * Context: GET
      */
-    private function getPreviewIcon()
+    protected function getPreviewIcon()
     {
         $storage = $this->request->gp('storage');
         $filename = $this->request->gp('path');
@@ -303,7 +303,7 @@ class FileManagerController extends \Fraym\Core
      * Pase copied files.
      * Context: POST
      */
-    private function pasteFile()
+    protected function pasteFile()
     {
         $items = json_decode($this->request->post('items'));
         $storage = $this->request->post('storage');
@@ -340,7 +340,7 @@ class FileManagerController extends \Fraym\Core
     /**
      * Get a array of files for the dynatree.
      */
-    private function updateTree()
+    protected function updateTree()
     {
         $dynatreeJson = $this->fileManager->getDynatreeJson();
         $this->response->sendAsJson($dynatreeJson);
@@ -353,7 +353,7 @@ class FileManagerController extends \Fraym\Core
      * @param $dest
      * @return bool
      */
-    private function copyFolder($source, $dest)
+    protected function copyFolder($source, $dest)
     {
         $iterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator(
@@ -382,7 +382,7 @@ class FileManagerController extends \Fraym\Core
      * Rename a file.
      * Context: POST
      */
-    private function renameFile()
+    protected function renameFile()
     {
         $item = json_decode($this->request->post('item'));
         $storage = $this->request->post('storage');
@@ -426,7 +426,7 @@ class FileManagerController extends \Fraym\Core
      * Delete a file.
      * Context: POST
      */
-    private function deleteFile()
+    protected function deleteFile()
     {
         $items = json_decode($this->request->post('items'));
         $storage = $this->request->post('storage');
@@ -454,7 +454,7 @@ class FileManagerController extends \Fraym\Core
      * @param $dir
      * @return bool
      */
-    private function deleteFolder($dir)
+    protected function deleteFolder($dir)
     {
         return $this->fileManager->deleteFolder($dir);
     }

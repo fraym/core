@@ -128,11 +128,31 @@ class BlockChangeSetManager
         }
 
         $this->db->flush();
-        $this->cache->clearAll();
+        $this->clearMenuCache($block);
+    }
+
+    /**
+     * @param Entity\Block $block
+     * @return bool
+     */
+    function clearMenuCache(Entity\Block $block) {
+        if($block->menuItemTranslation) {
+            $url = $block->menuItemTranslation->getUrl(true);
+        } elseif($block->menuItem) {
+            $url = $block->menuItem->getUrl(true);
+        } else {
+            return false;
+        }
+
+        $url = str_ireplace(['https://', 'http://'], '', $url);
+
+        $this->cache->deleteCache($url);
+        return true;
     }
 
     /**
      * @param $block
+     * @return bool
      */
     public function undoBlock($block)
     {
@@ -143,6 +163,7 @@ class BlockChangeSetManager
             $this->db->remove($block);
         }
         $this->db->flush();
+        return true;
     }
 
     /**
@@ -159,8 +180,10 @@ class BlockChangeSetManager
                 foreach ($menuItems as $data) {
                     foreach ($data['blocks'] as $blockId => $lastChagedBlock) {
                         $block = $this->db->getRepository('\Fraym\Block\Entity\Block')->findOneById($blockId);
-                        $this->deploy($block);
-                        $count++;
+                        if($block) {
+                            $this->deploy($block);
+                            $count++;
+                        }
                     }
                 }
             }
@@ -182,8 +205,10 @@ class BlockChangeSetManager
                 foreach ($menuItems as $data) {
                     foreach ($data['blocks'] as $blockId => $lastChagedBlock) {
                         $block = $this->db->getRepository('\Fraym\Block\Entity\Block')->findOneById($blockId);
-                        $this->undoBlock($block);
-                        $count++;
+                        if($block) {
+                            $this->undoBlock($block);
+                            $count++;
+                        }
                     }
                 }
             }
@@ -204,10 +229,12 @@ class BlockChangeSetManager
         if (isset($changeSets[$siteId][$menuId][$menuTranslationId])) {
             foreach ($changeSets[$siteId][$menuId][$menuTranslationId]['blocks'] as $blockId => $change) {
                 $block = $this->db->getRepository('\Fraym\Block\Entity\Block')->findOneById($blockId);
-                if ($undo) {
-                    $this->undoBlock($block);
-                } else {
-                    $this->deploy($block);
+                if($block) {
+                    if ($undo) {
+                        $this->undoBlock($block);
+                    } else {
+                        $this->deploy($block);
+                    }
                 }
             }
         }
@@ -220,10 +247,12 @@ class BlockChangeSetManager
     public function deployBlock($blockId, $undo = false)
     {
         $block = $this->db->getRepository('\Fraym\Block\Entity\Block')->findOneById($blockId);
-        if ($undo) {
-            $this->undoBlock($block);
-        } else {
-            $this->deploy($block);
+        if($block) {
+            if ($undo) {
+                $this->undoBlock($block);
+            } else {
+                $this->deploy($block);
+            }
         }
     }
 }

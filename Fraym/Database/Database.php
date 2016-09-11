@@ -27,32 +27,32 @@ class Database
     /**
      * @var null
      */
-    private $fetchMode = null;
+    protected $fetchMode = null;
 
     /**
      * @var \Doctrine\DBAL\Connection|null
      */
-    private $pdo = null;
+    protected $pdo = null;
 
     /**
      * @var null
      */
-    private $schemaTool = null;
+    protected $schemaTool = null;
 
     /**
      * @var bool|\Doctrine\Common\Annotations\CachedReader
      */
-    private $cachedAnnotationReader = false;
+    protected $cachedAnnotationReader = false;
 
     /**
      * @var \Gedmo\Translatable\TranslatableListener
      */
-    private $translatableListener = null;
+    protected $translatableListener = null;
 
     /**
      * @var array
      */
-    private $connectionOptions = [];
+    protected $connectionOptions = [];
 
     /**
      * @Inject

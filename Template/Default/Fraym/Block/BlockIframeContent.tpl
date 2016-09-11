@@ -111,7 +111,7 @@
                     <label class="control-label">{_('View permission', 'FRAYM_VIEW_PERMISSION')}</label>
                 </div>
                 <div class="col-xs-12 col-sm-9">
-                    <select class="form-control permission" name="permissions[]" multiple>
+                    <select class="form-control permission" id="permissions" name="permissions[]" data-placeholder=" " multiple>
                         {foreach $userGroups as $userGroup}
                             <optgroup label="{_('Group', 'FRAYM_GROUP')}">
                                 <option class="group" value="{$userGroup.identifier}">
@@ -145,7 +145,7 @@
                     <label class="control-label">{_('Excluding devices', 'FRAYM_EXCLUDE_DEVICE')}</label>
                 </div>
                 <div class="col-xs-12 col-sm-9">
-                    <select class="form-control excludedDevices" data-placeholder=" " name="excludedDevices[]" multiple="multiple">
+                    <select class="form-control excludedDevices" id="excludedDevices" data-placeholder=" " name="excludedDevices[]" multiple="multiple">
                         <option value="desktop">{_('Desktop', 'FRAYM_EXCLUDE_DEVICE_DESKTOP')}</option>
                         <option value="tablet">{_('Tablet', 'FRAYM_EXCLUDE_DEVICE_TABLET')}</option>
                         <option value="mobile">{_('Mobile', 'FRAYM_EXCLUDE_DEVICE_MOBILE')}</option>

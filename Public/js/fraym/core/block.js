@@ -8,39 +8,10 @@ Fraym.Block = {
 	dragging: false,
 	url: '',
 	CodeMirror: false,
-	contextMenuItemsDisabled: {},
 	dialogContentId: '',
 	dialogBlockId: '',
+	insertAfterElement: null,
 	dialogWithIframe: false,
-
-	History: {
-
-		blocks: [],
-		currentIndex: 0,
-
-		init: function () {
-			$(document).keypress(function (e) {
-				if (!(event.which == 26 && event.ctrlKey) && !(event.which == 25 && event.ctrlKey) && !(event.which == 19)) {
-					return true;
-				}
-				e.preventDefault();
-
-				if (event.which == 26 && event.ctrlKey) {
-					// ctrl + z pressed
-					// TODO
-					console.log('undo');
-				} else {
-					// ctrl + y pressed
-					// TODO
-					console.log('redo');
-				}
-			});
-		},
-
-		load: function (blockId) {
-			//TODO
-		}
-	},
 
 	loadDefaultConfig: function (json) {
 		var $baseElement = $('body');
@@ -240,7 +211,7 @@ Fraym.Block = {
 
 		$('body').off('mousedown', 'select[data-menuselection]').on('mousedown', 'select[data-menuselection]', inputEvent);
 
-		FileManager.initFilePathInput();
+		Fraym.FileManager.initFilePathInput();
 	},
 
 	addTab: function (title, html) {
@@ -253,19 +224,34 @@ Fraym.Block = {
 	},
 
 	removeTabs: function () {
+        $('select').chosen('destroy');
+
 		$(Fraym.$.BLOCK_TABS).tabs("destroy");
 		$(Fraym.$.BLOCK_TABS).find('ul > li:not(:first), .custom-tab-content').remove();
 		$(Fraym.$.BLOCK_TABS).tabs();
+
+        $('select:not(.default)').chosen({
+            search_contains: true
+        });
 	},
 
 	init: function () {
 
 		Fraym.Block.initBlockActions();
-		Fraym.Block.History.init();
 
 		if(Fraym.Admin.EDIT_MODE) {
-			$('body', Fraym.getBaseWindow().document).addClass('fraym-edit-mode');
+			$('body', Fraym.getBaseWindow().document).addClass('fraym-edit-mode-enabled');
+		} else {
+			$('body', Fraym.getBaseWindow().document).addClass('fraym-edit-mode-disabled');
 		}
+
+		// Create wrapper for sidebar
+		$('body > *:not(#blockConfigMenu)').wrapAll('<div class="fraym-wrapper"/>');
+
+		// Reposition fixed elements for sidebar
+		$('*:not(#blockConfigMenu)').filter(function() {
+			return $(this).css("position") === 'fixed';
+		}).addClass('fraym-fixed-position');
 
 		if(typeof $.cookie != 'undefined') {
 			if(typeof $.cookie('copy') != 'undefined') {
@@ -351,21 +337,29 @@ Fraym.Block = {
 		if (typeof CKEDITOR != 'undefined') {
 			for (var instance in CKEDITOR.instances) {
 				try {
-					var html = $('<div>' + CKEDITOR.instances[instance].getData() + '</div>');
-					$.each(html.find('[data-page-link]'), function(kk, l){
-						if($(l).parent('block').length) {
-							$(l).unwrap();
-						}
-						var $linkHtml = $('<div/>').html($(l).clone().removeAttr('data-page-link'));
-						var $blockLink = $('<block type="link" translation="true">' + $linkHtml.html() + '</block>');
-						$(l).replaceWith($blockLink);
-					});
-					CKEDITOR.instances[instance].setData(html.html());
+					var data = Fraym.Block.replaceRteLink(CKEDITOR.instances[instance].getData());
+					CKEDITOR.instances[instance].setData(data);
 				} catch(e) {
 					delete CKEDITOR.instances[instance];
 				}
 			}
 		}
+	},
+
+	replaceRteLink: function(data) {
+		var html = $('<div>' + data + '</div>');
+		if(html.find('[data-page-link]').length) {
+			$.each(html.find('[data-page-link]'), function(kk, l){
+				if($(l).parent('block').length) {
+					$(l).unwrap();
+				}
+				var $linkHtml = $('<div/>').html($(l).clone().removeAttr('data-page-link'));
+				var $blockLink = $('<block type="link" translation="true">' + $linkHtml.html() + '</block>');
+				$(l).replaceWith($blockLink);
+			});
+			return html.html();
+		}
+		return data;
 	},
 
 	replaceRteBlockLinks: function() {
@@ -405,7 +399,7 @@ Fraym.Block = {
 			$('form').submit();
 		});
 
-		FileManager.initFilePathInput();
+		Fraym.FileManager.initFilePathInput();
 
 		$('form#block-add-edit-form').formSubmit({
 			url: Fraym.getAjaxRequestUri(),
@@ -417,8 +411,16 @@ Fraym.Block = {
 				$(Fraym.Block).trigger('blockConfigSaved');
 				if (json && json.data) {
 					if ($(Fraym.$.BLOCK_CURRENT_INPUT).val() == '') {
-						window.parent.$('#' + $(Fraym.$.BLOCK_CURRENT_CONTENTID_INPUT).val()).prepend(json.data);
-						window.parent.Fraym.Block.initBlockActions();
+
+						if(Fraym.getBaseWindow().Fraym.Block.insertAfterElement) {
+							var $blockHolder = $(json.data);
+							$blockHolder.insertAfter(Fraym.getBaseWindow().Fraym.Block.insertAfterElement);
+							Fraym.Block.saveSorting($blockHolder);
+						} else {
+							Fraym.getBaseWindow().$('#' + $(Fraym.$.BLOCK_CURRENT_CONTENTID_INPUT).val()).prepend(json.data);
+						}
+
+						Fraym.getBaseWindow().Fraym.Block.initBlockActions();
 					} else {
 						Fraym.Block.replaceBlock($(Fraym.$.BLOCK_CURRENT_INPUT).val(), json.data);
 					}
@@ -429,9 +431,13 @@ Fraym.Block = {
 				}
 
 				if($('form').data('closeonsuccess') == true) {
-					window.parent.$(Fraym.$.BLOCK_OVERLAY).dialog('close');
+					Fraym.getBaseWindow().$(Fraym.$.BLOCK_OVERLAY).dialog('close');
 				}
 				Fraym.Block.replaceRteBlockLinks();
+				/**
+				 * Reactivate inline editor, because of the element replace
+				 */
+				Fraym.getBaseWindow().Fraym.InlineEditor.init();
 			},
 			dataType: 'json'
 		});
@@ -534,33 +540,37 @@ Fraym.Block = {
 				if(start) {
 					ev.stopPropagation();
 					start = false;
-
-					var contentId = $(ui.item).parent().attr('id');
-					var contentBlocks = [];
-
-					$.each($(ui.item).parent().children(Fraym.$.BLOCK_HOLDER), function(){
-						var blockElement = {contentId: contentId, blockId: $(this).data('id'), menuId: window.parent.menu_id};
-						contentBlocks.push(blockElement);
-					});
-
-					if ($.trim(contentId) != '') {
-						var parentWindow = Fraym.getBaseWindow();
-						var location = parentWindow.location.href.substring(parentWindow.location.protocol.length+2);
-						$.ajax({
-							url:Fraym.getAjaxRequestUri(),
-							dataType:'json',
-							data:{cmd:'moveBlockToView', blocks: contentBlocks, location: location},
-							type:'post',
-							success:function (data, textStatus, jqXHR) {
-								if (data.success == false) {
-									Fraym.showMessage(Fraym.getBaseWindow().Fraym.Translation.Global.PermissionDenied);
-								}
-							}
-						});
-					}
+					Fraym.Block.saveSorting(ui.item);
 				}
 			}
 		});
+	},
+
+	saveSorting: function($blockHolder) {
+
+		var contentId = $blockHolder.parent().attr('id');
+		var contentBlocks = [];
+
+		$.each($blockHolder.parent().children(Fraym.$.BLOCK_HOLDER), function(){
+			var blockElement = {contentId: contentId, blockId: $(this).data('id'), menuId: Fraym.getBaseWindow().menu_id};
+			contentBlocks.push(blockElement);
+		});
+
+		if ($.trim(contentId) != '') {
+			var parentWindow = Fraym.getBaseWindow();
+			var location = parentWindow.location.href.substring(parentWindow.location.protocol.length+2);
+			$.ajax({
+				url:Fraym.getAjaxRequestUri(),
+				dataType:'json',
+				data:{cmd:'moveBlockToView', blocks: contentBlocks, location: location},
+				type:'post',
+				success:function (data, textStatus, jqXHR) {
+					if (data.success == false) {
+						Fraym.showMessage(Fraym.getBaseWindow().Fraym.Translation.Global.PermissionDenied);
+					}
+				}
+			});
+		}
 	},
 
 	addViewActions: function (id) {
@@ -568,21 +578,10 @@ Fraym.Block = {
 			return;
 		}
 
-		Fraym.Block.contextMenuItemsDisabled['paste'] = !(typeof $.cookie('copy') != 'undefined' || typeof $.cookie('cut') != 'undefined');
-		Fraym.Block.contextMenuItemsDisabled['pasteAsRef'] = !(typeof $.cookie('copy') != 'undefined');
-
 		$('#' + id + '-block-container-actionbar').find('a.add').click(function(e){
 			e.preventDefault();
 			Fraym.Block.showBlockDialog(id);
 		});
-
-		if(Fraym.Block.contextMenuItemsDisabled['paste'] !== false) {
-			$('.block-container-actionbar').find('a.paste').hide();
-		}
-
-		if(Fraym.Block.contextMenuItemsDisabled['pasteAsRef'] !== false) {
-			$('.block-container-actionbar').find('a.pasteref').hide();
-		}
 
 		$('#' + id + '-block-container-actionbar').find('a.paste').click(function(e){
 			e.preventDefault();
@@ -592,61 +591,6 @@ Fraym.Block = {
 		$('#' + id + '-block-container-actionbar').find('a.pasteref').click(function(e){
 			e.preventDefault();
 			Fraym.Block.pasteBlock(id, true);
-		});
-
-
-		$.contextMenu( 'destroy', '.edit-view-content' );
-
-		$.contextMenu({
-			selector: '#' + id,
-			callback: function (key, options) {
-				switch (key) {
-					case 'add':
-						Fraym.Block.showBlockDialog(id);
-						break;
-					case 'paste':
-						Fraym.Block.pasteBlock(id, false);
-						break;
-					case 'pasteAsRef':
-						Fraym.Block.pasteBlock(id, true);
-						break;
-				}
-			},
-			items: {
-				"add": {
-					name: Fraym.getBaseWindow().Fraym.Translation.ContextMenu.AddBlock,
-					icon: "edit",
-					disabled: function(key, opt) {
-						return !!Fraym.Block.contextMenuItemsDisabled[key];
-					}
-				},
-				"paste": {
-					name: Fraym.getBaseWindow().Fraym.Translation.ContextMenu.PasteBlock,
-					icon: "paste",
-					disabled: function(key, opt) {
-						return !!Fraym.Block.contextMenuItemsDisabled[key];
-					}
-				},
-				"pasteAsRef": {
-					name: Fraym.getBaseWindow().Fraym.Translation.ContextMenu.PasteAsRefBlock,
-					icon: "paste",
-					disabled: function(key, opt) {
-						return !!Fraym.Block.contextMenuItemsDisabled[key];
-					}
-				}
-			}
-		});
-		$('#' + id).swipe({
-			swipeLeft: function (event, direction, distance, duration, fingerCount) {
-				if (fingerCount === 1) {
-					event.preventDefault();
-					event.stopPropagation();
-					$(this).contextMenu({
-						x: event.changedTouches[0].screenX,
-						y: event.changedTouches[0].screenY
-					});
-				}
-			}
 		});
 	},
 
@@ -716,9 +660,10 @@ Fraym.Block = {
 		return $newDialog;
 	},
 
-	showBlockDialog: function (contentId, currentBlockId) {
+	showBlockDialog: function (contentId, currentBlockId, insertAfterElement) {
 		Fraym.Block.dialogContentId = contentId;
 		Fraym.Block.dialogBlockId = currentBlockId;
+		Fraym.Block.insertAfterElement = insertAfterElement;
 		$(Fraym.$.BLOCK_DIALOG + ',' + Fraym.$.BLOCK_OVERLAY).remove();
 		$(Fraym.Block).unbind('blockConfigLoaded');
 		Fraym.Block.dialogWithIframe = Fraym.Block.showDialog({title: 'Block config', dialogClass: 'block-dialog'}, Fraym.Admin.BLOCK_EDIT_SRC);
@@ -738,9 +683,8 @@ Fraym.Block = {
 					Fraym.Block.addTab(extensionJsonData.name, html);
 				}
 
-				FileManager.initFilePathInput();
+				Fraym.FileManager.initFilePathInput();
 
-				Fraym.Block.History.load(extensionJsonData.id);
 				$(Fraym.Block).trigger('blockConfigLoaded', [extensionJsonData]).unbind('blockConfigLoaded');
 				$(Fraym.$.BLOCK_TEMPLATE_SELECTION).removeAttr('disabled');
 			}
@@ -760,9 +704,16 @@ Fraym.Block = {
 					$('[data-id="' + id + '"]').effect('explode', {}, 500, function () {
 						$(this).remove();
 					});
-					$('[data-byRef="' + id + '"]').effect('explode', {}, 500, function () {
+
+					$('[data-byref="' + id + '"]').effect('explode', {}, 500, function () {
 						$(this).remove();
 					});
+
+					var byRefId = $('[data-id="' + id + '"]').data('byref');
+					$('[data-id="' + byRefId + '"]').effect('explode', {}, 500, function () {
+						$(this).remove();
+					});
+
 				} else if (typeof json.message != 'undefined') {
 					Fraym.showMessage(json.message);
 				}
@@ -771,24 +722,21 @@ Fraym.Block = {
 	},
 
 	copyBlock: function (id) {
-		Fraym.Block.contextMenuItemsDisabled['paste'] = false;
-		Fraym.Block.contextMenuItemsDisabled['pasteAsRef'] = false;
 		$.cookie('copy', id, { path: '/' });
 		$.removeCookie('cut', { path: '/' });
-		$('.block-container-actionbar').find('a.paste').show();
-		$('.block-container-actionbar').find('a.pasteref').show();
+		$('.block-container-actionbar, .block-holder').find('a.paste').show();
+		$('.block-container-actionbar, .block-holder').find('a.pasteref').show();
 	},
 
 	cutBlock: function (id) {
-		Fraym.Block.contextMenuItemsDisabled['paste'] = false;
 		$.cookie('cut', id, { path: '/' });
 		$.removeCookie('copy', { path: '/' });
 		$('[data-id="' + id + '"]').css('opacity', 0.5);
-		$('.block-container-actionbar').find('a.paste').show();
-		$('.block-container-actionbar').find('a.pasteref').hide();
+		$('.block-container-actionbar, .block-holder').find('a.paste').show();
+		$('.block-container-actionbar, .block-holder').find('a.pasteref').hide();
 	},
 
-	pasteBlock: function (contentId, byRef) {
+	pasteBlock: function (contentId, byRef, inserAfterElement) {
 		var parentWindow = Fraym.getBaseWindow();
 		var id = $.cookie('copy') || $.cookie('cut');
 		var op = typeof $.cookie('copy') != 'undefined' ? 'copy' : 'cut';
@@ -802,8 +750,8 @@ Fraym.Block = {
 			success: function (json, textStatus, jqXHR) {
 
 				if(op === 'cut') {
-					$('.block-container-actionbar').find('a.paste').hide();
-					$('.block-container-actionbar').find('a.pasteref').hide();
+					$('.block-container-actionbar, .block-holder').find('a.paste').hide();
+					$('.block-container-actionbar, .block-holder').find('a.pasteref').hide();
 				}
 				$.removeCookie('cut', { path: '/' });
 
@@ -813,7 +761,15 @@ Fraym.Block = {
 							$(this).remove();
 						});
 					}
-					$('#' + contentId).prepend(json.data);
+
+					if(inserAfterElement) {
+						var $blockHolder = $(json.data);
+						$blockHolder.insertAfter(inserAfterElement);
+						Fraym.Block.saveSorting($blockHolder);
+					} else {
+						$('#' + contentId).prepend(json.data);
+					}
+
 					Fraym.Block.initBlockActions();
 				} else if (typeof json.message != 'undefined') {
 					Fraym.showMessage(json.message);
@@ -823,8 +779,8 @@ Fraym.Block = {
 	},
 
 	replaceBlock: function (blockId, data) {
-		window.parent.$('[data-id=' + blockId + ']').replaceWith(data);
-		window.parent.Fraym.Block.initBlockActions();
+		Fraym.getBaseWindow().$('[data-id=' + blockId + ']').replaceWith(data);
+		Fraym.getBaseWindow().Fraym.Block.initBlockActions();
 	},
 
 	addBlockActions: function (id) {
@@ -832,61 +788,50 @@ Fraym.Block = {
 			return;
 		}
 
+		var showPaste = !(typeof $.cookie('copy') != 'undefined' || typeof $.cookie('cut') != 'undefined');
+		var showPasteRef = !(typeof $.cookie('copy') != 'undefined');
+
+		if(showPaste !== false) {
+			$('[data-id=' + id + ']').find('a.paste').hide();
+		}
+
+		if(showPasteRef !== false) {
+			$('[data-id=' + id + ']').find('a.pasteref').hide();
+		}
+
+		$('[data-id=' + id + ']').find('a.paste').click(function(e){
+			e.preventDefault();
+            Fraym.Block.pasteBlock($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), false, $(this).parents(Fraym.$.BLOCK_HOLDER).first());
+		});
+
+		$('[data-id=' + id + ']').find('a.pasteref').click(function(e){
+			e.preventDefault();
+            Fraym.Block.pasteBlock($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), true, $(this).parents(Fraym.$.BLOCK_HOLDER).first());
+		});
+
+		$('[data-id=' + id + ']').find('a.add-after').click(function(e){
+			e.preventDefault();
+            Fraym.Block.showBlockDialog($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), '', $(this).parents(Fraym.$.BLOCK_HOLDER).first());
+		});
+
 		$('[data-id=' + id + ']').find('a.edit').click(function(e){
 			e.preventDefault();
 			Fraym.Block.showBlockDialog($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), $(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
 		});
+
 		$('[data-id=' + id + ']').find('a.copy').click(function(e){
 			e.preventDefault();
 			Fraym.Block.copyBlock($(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
 		});
+
 		$('[data-id=' + id + ']').find('a.cut').click(function(e){
 			e.preventDefault();
 			Fraym.Block.cutBlock($(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
 		});
+
 		$('[data-id=' + id + ']').find('a.delete').click(function(e){
 			e.preventDefault();
 			Fraym.Block.deleteBlock($(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
-		});
-
-		$.contextMenu({
-			selector: '[data-id=' + id + ']',
-			callback: function (key, options) {
-				switch (key) {
-					case 'edit':
-						Fraym.Block.showBlockDialog($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), $(this).data('id'));
-						break;
-					case 'copy':
-						Fraym.Block.copyBlock($(this).data('id'));
-						break;
-					case 'delete':
-						Fraym.Block.deleteBlock($(this).data('id'));
-						break;
-					case 'cut':
-						Fraym.Block.cutBlock($(this).data('id'));
-						break;
-				}
-			},
-			items: {
-				"edit": { name: Fraym.getBaseWindow().Fraym.Translation.ContextMenu.EditBlock, icon: "edit" },
-				"copy": { name: Fraym.getBaseWindow().Fraym.Translation.ContextMenu.CopyBlock, icon: "copy" },
-				"cut": { name: Fraym.getBaseWindow().Fraym.Translation.ContextMenu.CutBlock, icon: "cut" },
-				"delete": { name: Fraym.getBaseWindow().Fraym.Translation.ContextMenu.DeleteBlock, icon: "delete" }
-			}
-		});
-
-		$('[data-id=' + id + ']').swipe({
-			swipeLeft: function (event, direction, distance, duration, fingerCount) {
-				if (fingerCount === 1) {
-					event.preventDefault();
-					event.stopPropagation();
-					$(this).contextMenu({
-						x: event.changedTouches[0].screenX,
-						y: event.changedTouches[0].screenY
-					});
-					$(document).swipe("destroy");
-				}
-			}
 		});
 	}
 };

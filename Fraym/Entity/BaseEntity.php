@@ -184,7 +184,7 @@ class BaseEntity
      * @param $maxEntityRecursionDepth
      * @return EntitySerializer
      */
-    private function getSerializer($maxRecursionDepth, $maxEntityRecursionDepth)
+    protected function getSerializer($maxRecursionDepth, $maxEntityRecursionDepth)
     {
         /**
          * @var \Fraym\Database\Database $em

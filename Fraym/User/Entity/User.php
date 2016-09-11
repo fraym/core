@@ -50,7 +50,7 @@ class User extends \Fraym\Entity\BaseEntity
      * @ORM\Column(name="password", type="string", length=64, nullable=false)
      * @FormField(label="Password", type="password", validation={"minLength" = 6})
      */
-    private $password;
+    protected $password;
 
     /**
      * @var string $profilePicture

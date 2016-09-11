@@ -163,57 +163,57 @@ class Template
     /**
      * @var null
      */
-    private $currentTemplateContent = null;
+    protected $currentTemplateContent = null;
 
     /**
      * @var string
      */
-    private $mainTemplate = '';
+    protected $mainTemplate = '';
 
     /**
      * @var string
      */
-    private $defaultDir = 'Default';
+    protected $defaultDir = 'Default';
 
     /**
      * @var string
      */
-    private $templateDir = 'Template';
+    protected $templateDir = 'Template';
 
     /**
      * @var string
      */
-    private $pageTitle = '';
+    protected $pageTitle = '';
 
     /**
      * @var string
      */
-    private $pageDescription = '';
+    protected $pageDescription = '';
 
     /**
      * @var array
      */
-    private $keywords = [];
+    protected $keywords = [];
 
     /**
      * @var array
      */
-    private $headData = [];
+    protected $headData = [];
 
     /**
      * @var array
      */
-    private $footData = [];
+    protected $footData = [];
 
     /**
      * @var null
      */
-    private $template = null;
+    protected $template = null;
 
     /**
      * @var array
      */
-    private $parserLog = [];
+    protected $parserLog = [];
 
     /**
      * Holds the current module name
@@ -227,59 +227,59 @@ class Template
      *
      * @var null
      */
-    private $siteTemplateDir = null;
+    protected $siteTemplateDir = null;
 
     /**
      * The javascript stack for rendering the javascript files to the output source
      *
      * @var array
      */
-    private $jsFiles = [];
+    protected $jsFiles = [];
 
     /**
      * The css stack for rendering the css files to the output source
      *
      * @var array
      */
-    private $cssFiles = [];
+    protected $cssFiles = [];
 
     /**
      * @var bool
      */
-    private $outputFilterEnabled = true;
+    protected $outputFilterEnabled = true;
 
     /**
      * @var array
      */
-    private $outputFilters = [];
+    protected $outputFilters = [];
 
     /**
      * holds all template vars
      *
      * @var array
      */
-    private $templateVars = [];
+    protected $templateVars = [];
 
     /**
      * holds all template vars from the last template
      *
      * @var array
      */
-    private $lastTemplateVars = [];
+    protected $lastTemplateVars = [];
 
     /**
      * holds all template vars
      *
      * @var array
      */
-    private $globalTemplateVars = [];
+    protected $globalTemplateVars = [];
 
     /**
      * All user pseudo template functions
      *
      * @var array
      */
-    private $templateFunctions = [];
+    protected $templateFunctions = [];
 
     /**
      * @Inject
@@ -344,7 +344,7 @@ class Template
     /**
      * @var bool
      */
-    private $cachingDisabled = false;
+    protected $cachingDisabled = false;
 
     /**
      * @return boolean
@@ -400,7 +400,7 @@ class Template
      */
     public function formatCurrency($number, $symbol = '')
     {
-        $fmt = new NumberFormatter($this->locale->getLocale()->locale, NumberFormatter::CURRENCY);
+        $fmt = new \NumberFormatter($this->locale->getLocale()->locale, \NumberFormatter::CURRENCY);
         return $fmt->formatCurrency($number, $symbol);
     }
 
@@ -678,7 +678,7 @@ class Template
      * @param bool $clearTemplateVars
      * @return string
      */
-    private function getTemplateVarString($clearTemplateVars = true)
+    protected function getTemplateVarString($clearTemplateVars = true)
     {
         $templateVarString = '';
         foreach ($this->templateVars as $var => $value) {
@@ -698,7 +698,7 @@ class Template
      *
      * @return $this
      */
-    private function resetTemplateVars()
+    protected function resetTemplateVars()
     {
         $this->lastTemplateVars = $this->templateVars;
         $this->templateVars = [];
@@ -711,7 +711,7 @@ class Template
      * @param $content
      * @return mixed
      */
-    private function replaceCustomTemplateFunctions($content)
+    protected function replaceCustomTemplateFunctions($content)
     {
         // replace the custom template function
         foreach ($this->templateFunctions as $pseudoFunction => &$realFunction) {
@@ -766,7 +766,7 @@ class Template
         return $content;
     }
 
-    private function replaceTemplateTags($content)
+    protected function replaceTemplateTags($content)
     {
         // clean default php tags from template
         $content = preg_replace_callback(
@@ -932,7 +932,7 @@ class Template
     /**
      * @return string
      */
-    private function getDefaultMenuItemTemplate() {
+    protected function getDefaultMenuItemTemplate() {
         $this->setView(self::class);
         $templateFile = $this->getTemplateFilePath('NoTemplate');
         return file_get_contents($templateFile);
@@ -1296,7 +1296,7 @@ class Template
      * @param string $source
      * @return string
      */
-    private function execOutputFilters($source)
+    protected function execOutputFilters($source)
     {
         foreach ($this->outputFilters as $callback) {
             if (is_array($callback) && count($callback) == 2 && isset($callback[0]) && isset($callback[1])) {
@@ -1369,7 +1369,7 @@ class Template
      *
      * @return Template
      */
-    private function addCmsInfo()
+    protected function addCmsInfo()
     {
         $name = \Fraym\Core::NAME;
         $author = \Fraym\Core::AUTHOR;
@@ -1392,7 +1392,7 @@ class Template
      * @param $source
      * @return mixed
      */
-    private function prependHeadDataToDocument($source)
+    protected function prependHeadDataToDocument($source)
     {
         $siteTpl = $source;
         foreach (array_reverse($this->headData) as $data) {
@@ -1408,7 +1408,7 @@ class Template
      * @param $source
      * @return mixed
      */
-    private function appendFootDataToDocument($source)
+    protected function appendFootDataToDocument($source)
     {
         $siteTpl = $source;
         foreach (array_reverse($this->footData) as $data) {

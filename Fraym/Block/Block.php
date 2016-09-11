@@ -17,7 +17,7 @@ class Block
     /**
      * @var bool
      */
-    private $inEditMode = false;
+    protected $inEditMode = false;
 
     /**
      * @Inject
@@ -68,15 +68,6 @@ class Block
         $this->user = $user;
         $this->session = $session;
         $this->inEditMode = $this->user->isAdmin() && $this->session->get('inEditMode', false);
-    }
-
-    /**
-     * Callback function to clear the cache if a block element is created or changed
-     */
-    public function clearCache()
-    {
-        $location = $this->request->post('location', false);
-        $this->cache->deleteCache($location);
     }
 
     /**

@@ -38,6 +38,7 @@ class Hook
     public function load()
     {
         $phpFiles = $this->fileManager->findFiles('Hook' . DIRECTORY_SEPARATOR . '*.php');
+
         foreach ($phpFiles as $phpFile) {
             require_once($phpFile);
             $loadedClasses = get_declared_classes();
@@ -45,7 +46,7 @@ class Hook
             $reflector = new \ReflectionClass($class);
             $parentClass = $reflector->getParentClass();
             if ($parentClass) {
-                $shortNameClass = ltrim($reflector->getName(), 'Hook\\');
+                $shortNameClass = str_replace('Fraym\\Hook\\', 'Fraym\\', $reflector->getName());
                 $shortNameClassHook = $parentClass->getName();
 
                 if ($shortNameClass === $shortNameClassHook) {

@@ -152,7 +152,7 @@ class DynamicTemplate
      * @param null $parentKey
      * @return mixed
      */
-    private function buildSelectOptions($files, &$options = [], $parentKey = null)
+    protected function buildSelectOptions($files, &$options = [], $parentKey = null)
     {
         foreach ($files as $file) {
             if ($file['isDir'] === true) {
@@ -176,7 +176,7 @@ class DynamicTemplate
     /**
      * @return \Fraym\Registry\Entity\text|string
      */
-    private function getTemplatePath()
+    protected function getTemplatePath()
     {
         $config = $this->config->get('DYNAMIC_TEMPLATE_PATH');
         if (!empty($config->value)) {
@@ -190,46 +190,40 @@ class DynamicTemplate
     /**
      * @return array
      */
-    private function getTemplateFiles()
+    protected function getTemplateFiles()
     {
         $path = $this->getTemplatePath();
         return $this->fileManager->getFiles($path);
     }
 
     /**
-     * @Fraym\Annotation\Route("/fraym/load-dynamic-template-config", name="dynamicTemplateConfig", permission={"\Fraym\User\User"="isAdmin"})
+     * @param \Fraym\Block\Entity\Block $block
+     * @param string $config
      */
-    public function loadDynamicTemplateConfig()
-    {
-        $template = $this->request->post('template');
-        $blockId = $this->request->post('blockId');
-        $variables = [];
+    public function createChangeSet(\Fraym\Block\Entity\Block $block, $config) {
+        $changeSet = new \Fraym\Block\Entity\ChangeSet();
+        $changeSet->contentId = $block->contentId;
+        $changeSet->name = $block->name;
+        $changeSet->position = $block->position;
+        $changeSet->byRef = $block->byRef;
+        $changeSet->menuItem = $block->menuItem;
+        $changeSet->site = $block->site;
+        $changeSet->menuItemTranslation = $block->menuTranslation;
+        $changeSet->extension = $block->extension;
+        $changeSet->block = $block;
+        $changeSet->user = $block->user;
+        $changeSet->config = $config;
+        $changeSet->type = \Fraym\Block\Entity\ChangeSet::EDITED;
 
-        if ($blockId) {
-            $block = $this->db->getRepository('\Fraym\Block\Entity\Block')->findOneById($blockId);
-            if ($block->changeSets->count()) {
-                $block = $block->changeSets->last();
-            }
-            $xml = $this->blockParser->getXmlObjectFromString($this->blockParser->wrapBlockConfig($block));
-            $variables = unserialize((string)$xml->dynamicTemplateConfig);
-        }
-
-        $localeResult = $this->db->getRepository('\Fraym\Locale\Entity\Locale')->findAll();
-
-        foreach ($localeResult as $locale) {
-            $locales[] = $locale->toArray(1);
-        }
-
-        $obj = $this->getTemplateXmlObject($template);
-
-        return $this->dynamicTemplateController->renderConfig((string)$obj->template, $locales, $variables);
+        $this->db->persist($changeSet);
+        $this->db->flush();
     }
 
     /**
      * @param $template
      * @return \SimpleXMLElement
      */
-    private function getTemplateXmlObject($template)
+    public function getTemplateXmlObject($template)
     {
         $template = $this->getTemplatePath() . DIRECTORY_SEPARATOR . $template;
 

@@ -10,22 +10,27 @@
 {js('fraym/libs/jquery.ui.touch-punch.min.js', 'default', 'ui.touch-punch')}
 {js('fraym/libs/jquery.coloranimations.js', 'default', 'coloranimations')}
 {js('fraym/libs/formsubmit.js', 'default', 'formsubmit')}
-{js('fraym/libs/jquery.touchSwipe.min.js', 'default', 'touchSwipe')}
 {js('fraym/libs/jquery.slimscroll.min.js', 'default', 'slimscroll')}
 {js('fraym/libs/jquery.cookie.js', 'default', 'cookie')}
 {js('fraym/libs/bootstrap.min.js', 'default', 'bootstrap')}
+{js('fraym/libs/ckeditor/ckeditor.js')}
+{js('fraym/libs/ckeditor/config.js')}
+{js('fraym/libs/ckeditor/adapters/jquery.js')}
 {js('fraym/main.js')}
+{js('fraym/core/inlineeditor.js')}
 {js('fraym/core/block.js')}
 {js('fraym/core/menu.js')}
 {js('fraym/core/admin.js')}
 {js('fraym/selector_config.js')}
 
 <div id="blockConfigMenu">
-	<iframe seamless allowtransparency="true" frameborder="0" src="//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('adminPanel')->route}?locale={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}"></iframe>
+	<iframe seamless allowtransparency="true" frameborder="0" src="//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('adminPanel')->route}?locale_id={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}"></iframe>
 </div>
 
 
 <script type="text/javascript">
+	var pageListJson = {i('Fraym\SiteManager\SiteManager')->getRteMenuItemArray()};
+
 	Fraym.Translation = {
 		Global: {
 			PermissionDenied: '{_('Permission denied!', 'FRAYM_PERMISSION_DENIED')}'
@@ -41,5 +46,6 @@
 		}
 	};
 	Fraym.Admin.EDIT_MODE = {if $inEditMode}true{else}false{/if};
-	Fraym.Admin.BLOCK_EDIT_SRC = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('block')->route}?locale={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
+	Fraym.Admin.BLOCK_EDIT_SRC = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('block')->route}?locale_id={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
+	Fraym.InlineEditor.defaultSaveUrl = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('dynamicTemplateSaveInlineEditor')->route}';
 </script>

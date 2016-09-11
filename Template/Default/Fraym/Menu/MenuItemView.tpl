@@ -52,15 +52,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-lg-2 control-label">{_("Short description")}</label>
+                    <label class="col-lg-2 control-label">{_("Description")}</label>
                     <div class="col-lg-10">
-                        <input class="form-control" name="menu[translations][{$locale.id}][shortDescription]" type="text" value="{if $menuItem}{$localeMenuItem.shortDescription}{/if}" />
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-lg-2 control-label">{_("Long description")}</label>
-                    <div class="col-lg-10">
-                        <input class="form-control" name="menu[translations][{$locale.id}][longDescription]" type="text" value="{if $menuItem}{$localeMenuItem.longDescription}{/if}" />
+                        <input class="form-control" name="menu[translations][{$locale.id}][description]" type="text" value="{if $menuItem}{$localeMenuItem.description}{/if}" />
                     </div>
                 </div>
                 <div class="form-group">

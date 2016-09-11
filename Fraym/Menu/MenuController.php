@@ -54,7 +54,7 @@ class MenuController extends \Fraym\Core
      * @param $params
      * @return mixed
      */
-    private function addAndEditMenuItem($params)
+    protected function addAndEditMenuItem($params)
     {
         $menuId = isset($params['parent_id']) ? $params['parent_id'] : $params['menu_id'];
         if (is_numeric($menuId)) {
@@ -171,7 +171,7 @@ class MenuController extends \Fraym\Core
      * @param $fileArray
      * @return array
      */
-    private function toDynatreeArray($fileArray)
+    protected function toDynatreeArray($fileArray)
     {
         $dynatree = [];
 
@@ -228,7 +228,7 @@ class MenuController extends \Fraym\Core
     /**
      *
      */
-    private function removeMenuItem()
+    protected function removeMenuItem()
     {
         $menuId = intval($this->request->gp('menu_id'));
 
@@ -240,7 +240,7 @@ class MenuController extends \Fraym\Core
     /**
      *
      */
-    private function addMenuItem()
+    protected function addMenuItem()
     {
         $menu = $this->request->post('menu');
 
@@ -269,7 +269,7 @@ class MenuController extends \Fraym\Core
     /**
      *
      */
-    private function editMenuItem()
+    protected function editMenuItem()
     {
         $menu = $this->request->post('menu');
 

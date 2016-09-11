@@ -144,7 +144,7 @@ class EntityManagerController extends \Fraym\Core
      * @param $modelClass
      * @return bool
      */
-    private function createEntityFromSingleField($modelClass)
+    protected function createEntityFromSingleField($modelClass)
     {
         $field = $this->request->post('field');
         $value = $this->request->post('value');

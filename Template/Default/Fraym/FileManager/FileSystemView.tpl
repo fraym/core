@@ -28,11 +28,11 @@
 </div>
 <script type="text/javascript">
     $(function(){
-        FileManager.dynatreeJson = {{$dynatreeJson}};
-        FileManager.fileFilter = '{$fileFilter}';
-        FileManager.rteSelectOptionCallback = {if $rteCallback !== false}{$rteCallback}{else}false{/if};
-        FileManager.singleFileSelect = {if $singleFileSelect}true{else}false{/if};
-        FileManager.currentFile = '{$currentFile}';
-        FileManager.init();
+        Fraym.FileManager.dynatreeJson = {{$dynatreeJson}};
+        Fraym.FileManager.fileFilter = '{$fileFilter}';
+        Fraym.FileManager.rteSelectOptionCallback = {if $rteCallback !== false}{$rteCallback}{else}false{/if};
+        Fraym.FileManager.singleFileSelect = {if $singleFileSelect}true{else}false{/if};
+        Fraym.FileManager.currentFile = '{$currentFile}';
+        Fraym.FileManager.init();
     });
 </script>
