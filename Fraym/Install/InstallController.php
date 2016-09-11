@@ -68,7 +68,7 @@ class InstallController extends \Fraym\Core
     /**
      * @var string
      */
-    private $_configFile = 'Config.php';
+    protected $_configFile = 'Config.php';
 
     public function setup()
     {
@@ -109,7 +109,7 @@ class InstallController extends \Fraym\Core
         $this->view->setTemplate('Install')->render();
     }
 
-    private function checkDatabase()
+    protected function checkDatabase()
     {
         $post = $this->request->getGPAsObject();
         define('FRAYM_INSTANCE', time());
@@ -151,7 +151,7 @@ class InstallController extends \Fraym\Core
         return \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
     }
 
-    private function install()
+    protected function install()
     {
         if ($this->writeConfig($this->_configFile)) {
             // Disable max script exec time, because creating database shema takes some time
@@ -189,7 +189,7 @@ class InstallController extends \Fraym\Core
     /**
      * @return array|bool
      */
-    private function initConfigurations()
+    protected function initConfigurations()
     {
 
         $gp = $this->request->getGPAsObject();
@@ -302,7 +302,7 @@ class InstallController extends \Fraym\Core
         return $errors;
     }
 
-    private function setupMenuItemTemplate()
+    protected function setupMenuItemTemplate()
     {
         /**
          * set default layout template
@@ -319,7 +319,7 @@ class InstallController extends \Fraym\Core
         return $this;
     }
 
-    private function addMenuItems($site)
+    protected function addMenuItems($site)
     {
         $gp = $this->request->getGPAsObject();
 
@@ -385,7 +385,7 @@ class InstallController extends \Fraym\Core
         return $this;
     }
 
-    private function writeConfig()
+    protected function writeConfig()
     {
         $post = $this->request->getGPAsObject();
 

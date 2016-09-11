@@ -20,6 +20,15 @@ html {
 body > .fraym-wrapper {
     padding-left: 41px !important;
     box-sizing: border-box;
+    overflow: hidden;
+}
+
+body > .cke_float {
+    max-width: 800px;
+}
+
+.fraym-fixed-position {
+    left: 41px !important;
 }
 
 .cke_editable {
@@ -244,7 +253,7 @@ body > .fraym-wrapper {
 .block-container .block-info {
     cursor: move;
     line-height: 16px;
-    text-align: center;
+    text-align: left;
     padding: 3px 3px 5px;
 }
 

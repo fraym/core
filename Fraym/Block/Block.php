@@ -17,7 +17,7 @@ class Block
     /**
      * @var bool
      */
-    private $inEditMode = false;
+    protected $inEditMode = false;
 
     /**
      * @Inject

@@ -1,9 +1,17 @@
 Fraym.ChangeSetManager = {
+
+	showLoader: function() {
+		$('body').mask({
+			spinner: { lines: 10, length: 5, width: 3, radius: 10}
+		});
+	},
+
 	init: function() {
 		$.each($('[data-deploymenu]'), function(){
 			$(this).click(function(e){
 				e.preventDefault();
 				var menu = $(this).attr('data-deploymenu') == '' ? 0 : $(this).attr('data-deploymenu');
+				Fraym.ChangeSetManager.showLoader();
 				$.ajax({
 					url:'/fraym/deploy-change-set',
 					dataType:'json',
@@ -20,6 +28,7 @@ Fraym.ChangeSetManager = {
 			$(this).click(function(e){
 				e.preventDefault();
 				var menu = $(this).attr('data-undomenu') == '' ? 0 : $(this).attr('data-undomenu');
+				Fraym.ChangeSetManager.showLoader();
 				$.ajax({
 					url:'/fraym/deploy-change-set',
 					dataType:'json',
@@ -35,6 +44,7 @@ Fraym.ChangeSetManager = {
 		$.each($('[data-deployblock]'), function(){
 			$(this).click(function(e){
 				e.preventDefault();
+				Fraym.ChangeSetManager.showLoader();
 				$.ajax({
 					url:'/fraym/deploy-change-set',
 					dataType:'json',
@@ -50,6 +60,7 @@ Fraym.ChangeSetManager = {
 		$.each($('[data-undoblock]'), function(){
 			$(this).click(function(e){
 				e.preventDefault();
+				Fraym.ChangeSetManager.showLoader();
 				$.ajax({
 					url:'/fraym/deploy-change-set',
 					dataType:'json',
@@ -64,6 +75,7 @@ Fraym.ChangeSetManager = {
 
 		$('#deploy-all').click(function(e){
 			e.preventDefault();
+			Fraym.ChangeSetManager.showLoader();
 			$.ajax({
 				url:'/fraym/deploy-change-set',
 				dataType:'json',
@@ -77,6 +89,7 @@ Fraym.ChangeSetManager = {
 
 		$('#undo-all').click(function(e){
 			e.preventDefault();
+			Fraym.ChangeSetManager.showLoader();
 			$.ajax({
 				url:'/fraym/deploy-change-set',
 				dataType:'json',

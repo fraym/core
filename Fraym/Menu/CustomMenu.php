@@ -85,7 +85,7 @@ class CustomMenu
      * @param null $parent
      * @return \Doctrine\Common\Collections\ArrayCollection
      */
-    private function getItems(\SimpleXMLElement $obj, $parent = null)
+    protected function getItems(\SimpleXMLElement $obj, $parent = null)
     {
         $returnChildren = new \Doctrine\Common\Collections\ArrayCollection();
 

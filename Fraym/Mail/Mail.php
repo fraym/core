@@ -13,8 +13,8 @@ namespace Fraym\Mail;
  */
 class Mail
 {
-    private $messageInstance;
-    private $transport = null;
+    protected $messageInstance;
+    protected $transport = null;
 
     public function __construct()
     {

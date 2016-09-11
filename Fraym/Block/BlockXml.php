@@ -16,82 +16,82 @@ class BlockXml
     /**
      * @var array
      */
-    private $templatesTypes = ['file', 'string'];
+    protected $templatesTypes = ['file', 'string'];
 
     /**
      * @var null
      */
-    private $class = null;
+    protected $class = null;
 
     /**
      * @var null
      */
-    private $method = null;
+    protected $method = null;
 
     /**
      * @var string
      */
-    private $type = 'extension';
+    protected $type = 'extension';
 
     /**
      * @var null
      */
-    private $checkRouteFunction = null;
+    protected $checkRouteFunction = null;
 
     /**
      * @var null
      */
-    private $dom = null;
+    protected $dom = null;
 
     /**
      * @var bool
      */
-    private $active = true;
+    protected $active = true;
 
     /**
      * @var bool
      */
-    private $cache = true;
+    protected $cache = true;
 
     /**
      * @var null
      */
-    private $startDate = null;
+    protected $startDate = null;
 
     /**
      * @var null
      */
-    private $endDate = null;
+    protected $endDate = null;
 
     /**
      * @var null
      */
-    private $template = null;
+    protected $template = null;
 
     /**
      * @var array
      */
-    private $permissions = [];
+    protected $permissions = [];
 
     /**
      * @var array
      */
-    private $excludedDevices = [];
+    protected $excludedDevices = [];
 
     /**
      * @var bool
      */
-    private $returnValidBlock = true;
+    protected $returnValidBlock = true;
 
     /**
      * @var string
      */
-    private $templateType = 'file';
+    protected $templateType = 'file';
 
     /**
      * @var string
      */
-    private $customProperty = '';
+    protected $customProperty = '';
 
     /**
      * @param string $blockString
@@ -155,7 +155,7 @@ class BlockXml
     /**
      * @return bool|string
      */
-    private function buildValidBlock()
+    protected function buildValidBlock()
     {
         $this->dom = $this->init();
         switch ($this->type) {
@@ -177,7 +177,7 @@ class BlockXml
     /**
      * @return string
      */
-    private function buildXmlExtensionBlock()
+    protected function buildXmlExtensionBlock()
     {
         $elBlock = $this->dom->getElementsByTagName('block')->item(0);
         $attr = $this->dom->createAttribute('type');

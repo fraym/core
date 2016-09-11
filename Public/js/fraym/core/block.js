@@ -224,9 +224,15 @@ Fraym.Block = {
 	},
 
 	removeTabs: function () {
+        $('select').chosen('destroy');
+
 		$(Fraym.$.BLOCK_TABS).tabs("destroy");
 		$(Fraym.$.BLOCK_TABS).find('ul > li:not(:first), .custom-tab-content').remove();
 		$(Fraym.$.BLOCK_TABS).tabs();
+
+        $('select:not(.default)').chosen({
+            search_contains: true
+        });
 	},
 
 	init: function () {
@@ -239,7 +245,13 @@ Fraym.Block = {
 			$('body', Fraym.getBaseWindow().document).addClass('fraym-edit-mode-disabled');
 		}
 
+		// Create wrapper for sidebar
 		$('body > *:not(#blockConfigMenu)').wrapAll('<div class="fraym-wrapper"/>');
+
+		// Reposition fixed elements for sidebar
+		$('*:not(#blockConfigMenu)').filter(function() {
+			return $(this).css("position") === 'fixed';
+		}).addClass('fraym-fixed-position');
 
 		if(typeof $.cookie != 'undefined') {
 			if(typeof $.cookie('copy') != 'undefined') {
@@ -336,15 +348,18 @@ Fraym.Block = {
 
 	replaceRteLink: function(data) {
 		var html = $('<div>' + data + '</div>');
-		$.each(html.find('[data-page-link]'), function(kk, l){
-			if($(l).parent('block').length) {
-				$(l).unwrap();
-			}
-			var $linkHtml = $('<div/>').html($(l).clone().removeAttr('data-page-link'));
-			var $blockLink = $('<block type="link" translation="true">' + $linkHtml.html() + '</block>');
-			$(l).replaceWith($blockLink);
-		});
-		return html.html();
+		if(html.find('[data-page-link]').length) {
+			$.each(html.find('[data-page-link]'), function(kk, l){
+				if($(l).parent('block').length) {
+					$(l).unwrap();
+				}
+				var $linkHtml = $('<div/>').html($(l).clone().removeAttr('data-page-link'));
+				var $blockLink = $('<block type="link" translation="true">' + $linkHtml.html() + '</block>');
+				$(l).replaceWith($blockLink);
+			});
+			return html.html();
+		}
+		return data;
 	},
 
 	replaceRteBlockLinks: function() {
@@ -786,30 +801,34 @@ Fraym.Block = {
 
 		$('[data-id=' + id + ']').find('a.paste').click(function(e){
 			e.preventDefault();
-			Fraym.Block.pasteBlock($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), false, $(this).parents(Fraym.$.BLOCK_HOLDER));
+            Fraym.Block.pasteBlock($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), false, $(this).parents(Fraym.$.BLOCK_HOLDER).first());
 		});
 
 		$('[data-id=' + id + ']').find('a.pasteref').click(function(e){
 			e.preventDefault();
-			Fraym.Block.pasteBlock($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), true, $(this).parents(Fraym.$.BLOCK_HOLDER));
+            Fraym.Block.pasteBlock($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), true, $(this).parents(Fraym.$.BLOCK_HOLDER).first());
 		});
 
 		$('[data-id=' + id + ']').find('a.add-after').click(function(e){
 			e.preventDefault();
-			Fraym.Block.showBlockDialog($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), '', $(this).parents(Fraym.$.BLOCK_HOLDER));
+            Fraym.Block.showBlockDialog($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), '', $(this).parents(Fraym.$.BLOCK_HOLDER).first());
 		});
+
 		$('[data-id=' + id + ']').find('a.edit').click(function(e){
 			e.preventDefault();
 			Fraym.Block.showBlockDialog($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), $(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
 		});
+
 		$('[data-id=' + id + ']').find('a.copy').click(function(e){
 			e.preventDefault();
 			Fraym.Block.copyBlock($(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
 		});
+
 		$('[data-id=' + id + ']').find('a.cut').click(function(e){
 			e.preventDefault();
 			Fraym.Block.cutBlock($(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
 		});
+
 		$('[data-id=' + id + ']').find('a.delete').click(function(e){
 			e.preventDefault();
 			Fraym.Block.deleteBlock($(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));

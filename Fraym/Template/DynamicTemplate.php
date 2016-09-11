@@ -152,7 +152,7 @@ class DynamicTemplate
      * @param null $parentKey
      * @return mixed
      */
-    private function buildSelectOptions($files, &$options = [], $parentKey = null)
+    protected function buildSelectOptions($files, &$options = [], $parentKey = null)
     {
         foreach ($files as $file) {
             if ($file['isDir'] === true) {
@@ -176,7 +176,7 @@ class DynamicTemplate
     /**
      * @return \Fraym\Registry\Entity\text|string
      */
-    private function getTemplatePath()
+    protected function getTemplatePath()
     {
         $config = $this->config->get('DYNAMIC_TEMPLATE_PATH');
         if (!empty($config->value)) {
@@ -190,7 +190,7 @@ class DynamicTemplate
     /**
      * @return array
      */
-    private function getTemplateFiles()
+    protected function getTemplateFiles()
     {
         $path = $this->getTemplatePath();
         return $this->fileManager->getFiles($path);

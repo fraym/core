@@ -59,17 +59,17 @@ class RegistryManager
     /**
      * @var null|\Fraym\Cache\Cache
      */
-    private $cache = null;
+    protected $cache = null;
 
     /**
      * @var null
      */
-    private $annotationReader = null;
+    protected $annotationReader = null;
 
     /**
      * @var null
      */
-    private $cachedAnnotationReader = null;
+    protected $cachedAnnotationReader = null;
 
     /**
      * @return $this
@@ -105,7 +105,7 @@ class RegistryManager
      * @param $class
      * @return null|object
      */
-    private function getRegistryConfig($class)
+    protected function getRegistryConfig($class)
     {
         $reflClass = new \ReflectionClass($class);
         $classAnnotation = $this->getAnnotationReader()->getClassAnnotation(
@@ -133,7 +133,7 @@ class RegistryManager
     /**
      * @return array
      */
-    private function getRegistryProperties()
+    protected function getRegistryProperties()
     {
         $reflRegClass = new \ReflectionClass('Fraym\Annotation\Registry');
         $properties = $reflRegClass->getProperties(\ReflectionProperty::IS_PUBLIC);
@@ -365,6 +365,8 @@ class RegistryManager
      */
     public function loadComposer()
     {
+        putenv("COMPOSER_HOME=.composer");
+        ini_set('memory_limit', '-1');
         if (!class_exists(\Composer\Console\Application::class)) {
             \Phar::loadPhar('composer.phar', 'composer.phar');
             require_once 'phar://composer.phar/src/bootstrap.php';
@@ -457,7 +459,7 @@ class RegistryManager
      * @param $classAnnotation
      * @return Entity\Registry
      */
-    private function updateRegistryEntry(Entity\Registry $registryEntry, $className, $classAnnotation)
+    protected function updateRegistryEntry(Entity\Registry $registryEntry, $className, $classAnnotation)
     {
         $registryEntry->className = $className;
         $registryEntry->deletable = $classAnnotation->deletable;
@@ -509,7 +511,7 @@ class RegistryManager
      * @param $orgData
      * @return array
      */
-    private function getEntityDataForUpdate($updateData, $orgData)
+    protected function getEntityDataForUpdate($updateData, $orgData)
     {
         foreach ($orgData as $entityData) {
             $diff = array_diff($entityData, $updateData);
@@ -528,7 +530,7 @@ class RegistryManager
      * @param $oldRegistryEntry
      * @return $this
      */
-    private function createEntities($registry, $classAnnotation, $oldRegistryEntry = null)
+    protected function createEntities($registry, $classAnnotation, $oldRegistryEntry = null)
     {
         if (count($classAnnotation->entity)) {
             foreach ($classAnnotation->entity as $className => $entries) {
@@ -584,7 +586,7 @@ class RegistryManager
      * @param $registry
      * @return mixed
      */
-    private function getSubEntries($entryData, $registry)
+    protected function getSubEntries($entryData, $registry)
     {
         foreach ($entryData as &$val) {
             if (is_array($val)) {
@@ -611,7 +613,7 @@ class RegistryManager
      * @param $classAnnotation
      * @return $this
      */
-    private function removeEntities($classAnnotation)
+    protected function removeEntities($classAnnotation)
     {
         $classAnnotation = (object)$classAnnotation;
         if (count($classAnnotation->entity)) {
@@ -646,7 +648,7 @@ class RegistryManager
      * @param $entryData
      * @return mixed
      */
-    private function getEntity($className, $entryData)
+    protected function getEntity($className, $entryData)
     {
         foreach ($entryData as $k => &$data) {
             if (is_array($data)) {

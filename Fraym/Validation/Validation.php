@@ -32,17 +32,17 @@ class Validation
     /**
      * @var array
      */
-    private $rules = [];
+    protected $rules = [];
 
     /**
      * @var array
      */
-    private $errorMessages = [];
+    protected $errorMessages = [];
 
     /**
      * @var array
      */
-    private $fieldsArray = [];
+    protected $fieldsArray = [];
 
     /**
      * @Inject
@@ -167,7 +167,7 @@ class Validation
      * @param array $foundErrors
      * @return array|bool
      */
-    private function checkRule($rule, $params, $value, $foundErrors = [])
+    protected function checkRule($rule, $params, $value, $foundErrors = [])
     {
         $errorRule = false;
 
@@ -380,7 +380,7 @@ class Validation
      * @param  $errors
      * @return array
      */
-    private function assignErrorMessagesToErrors($errors)
+    protected function assignErrorMessagesToErrors($errors)
     {
         if (count($this->errorMessages) > 0) {
             foreach ($errors as $field => $fields) {
@@ -516,16 +516,16 @@ class Validation
 
     /**
      * @param   string   IP address
-     * @param   boolean  allow private IP networks
+     * @param   boolean  allow protected IP networks
      * @return  boolean
      */
-    public function ip($ip, $allowPrivate = true)
+    public function ip($ip, $allowprotected = true)
     {
         // Do not allow reserved addresses
         $flags = FILTER_FLAG_NO_RES_RANGE;
 
-        if ($allowPrivate === false) {
-            // Do not allow private or reserved addresses
+        if ($allowprotected === false) {
+            // Do not allow protected or reserved addresses
             $flags = $flags | FILTER_FLAG_NO_PRIV_RANGE;
         }
 

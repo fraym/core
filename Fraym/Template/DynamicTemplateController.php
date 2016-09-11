@@ -85,9 +85,9 @@ class DynamicTemplateController extends \Fraym\Core
      * @Fraym\Annotation\Route("/fraym/dynamic-template/inline-editor-save", name="dynamicTemplateSaveInlineEditor", permission={"\Fraym\User\User"="isAdmin"})
      */
     public function saveDynamicTemplateInline() {
-        $field = $this->request->post('field');
-        $value = $this->request->post('value');
         $blockId = $this->request->post('blockId');
+        // Convert int key to string
+        $configField = json_decode(json_encode((object) $this->request->post('config')), true);
 
         // Get the block element
         $block = $this->db->getRepository('\Fraym\Block\Entity\Block')->findOneById($blockId);
@@ -95,12 +95,11 @@ class DynamicTemplateController extends \Fraym\Core
         // Read the xml config from the block
         $configXml = $this->blockParser->getXmlObjectFromString($this->blockParser->wrapBlockConfig($block));
         $config = unserialize($configXml->dynamicTemplateConfig);
-
-        // Set new field value
-        $config->$field = $value;
+        $config = json_decode(json_encode($config), true);
+        $newConfig = array_replace_recursive($config, $configField);
 
         // Create the new config xml date
-        $configXml->dynamicTemplateConfig = serialize($config);
+        $configXml->dynamicTemplateConfig = serialize($newConfig);
         $newConfig = $this->blockParser->getBlockConfig($this->blockParser->removeXmlHeader($configXml->asXML()));
 
         // Save changes to new change set

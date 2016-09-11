@@ -161,7 +161,7 @@ class EntitySerializer
      * @param $className
      * @return mixed
      */
-    private function removeClassNameFromArray($parentEntities, $className)
+    protected function removeClassNameFromArray($parentEntities, $className)
     {
         foreach ($parentEntities as $k => $val) {
             if ($val === $className) {

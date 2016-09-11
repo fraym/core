@@ -50,7 +50,7 @@ class ImageController extends \Fraym\Core
                 if (is_numeric($val)) {
                     $menuItem = $this->db->getRepository('\Fraym\Menu\Entity\MenuItem')->findOneById($val);
                     if ($menuItem) {
-                        $val = $this->route->buildFullUrl($menuItem, true);
+                        $val = $menuItem->getUrl(true);
                     } else {
                         $val = null;
                     }

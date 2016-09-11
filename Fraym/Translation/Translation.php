@@ -15,7 +15,7 @@ use Stichoza\GoogleTranslate\TranslateClient;
  */
 class Translation
 {
-    private $runtimeTranslationKeys = [];
+    protected $runtimeTranslationKeys = [];
 
     /**
      * @Inject
@@ -94,7 +94,7 @@ class Translation
      * @param $defaultLocale
      * @return mixed
      */
-    private function updateTranslationLocales($translation, $defaultValue, $locale, $defaultLocale)
+    protected function updateTranslationLocales($translation, $defaultValue, $locale, $defaultLocale)
     {
         $em = $this->db;
 
@@ -159,7 +159,7 @@ class Translation
      * @param string $defaultLocale
      * @return Entity\Translation|mixed|object
      */
-    private function getTranslationEntity($key, $locale, $default = '', $defaultLocale = 'en_US')
+    protected function getTranslationEntity($key, $locale, $default = '', $defaultLocale = 'en_US')
     {
         $translationString = (empty($default) ? $key : $default);
 
@@ -196,7 +196,7 @@ class Translation
      * @param $defaultLocale
      * @return string
      */
-    private function getTranslatedValue($key, $locale, $defaultLocale)
+    protected function getTranslatedValue($key, $locale, $defaultLocale)
     {
         $em = $this->db;
         $translation = $em->getRepository('\Fraym\Translation\Entity\Translation')->findOneByKey($key);

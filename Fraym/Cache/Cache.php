@@ -27,7 +27,7 @@ class Cache
     /**
      * @var string
      */
-    private $menuPermission = '';
+    protected $menuPermission = '';
 
     /**
      * @Inject
@@ -159,6 +159,7 @@ class Cache
                         $this->route->redirectToUrl('https://' . $this->route->getRequestRoute());
                     }
 
+
                     $this->locale->setLocale($menuItemTranslation->locale);
                     $this->template->setSiteTemplateDir($menuItemTranslation->menuItem->site->templateDir);
                     $this->route->setCurrentMenuItem($menuItemTranslation->menuItem);
@@ -185,11 +186,11 @@ class Cache
     /**
      * @return string
      */
-    private function getCacheName()
+    protected function getCacheName()
     {
-        $uri = $this->route->getRequestRoute();
-        $user = $this->session->get('userId', '');
-        return md5($uri . $user);
+        $uri = trim($this->route->getRequestRoute(), '/');
+        $user = $this->session->get('userId', null);
+        return md5($uri) . ($user ? '_' . $user : '');
     }
 
     /**
@@ -417,7 +418,7 @@ class Cache
      * @param $dir
      * @param int $mode
      */
-    private static function createFolder($dir, $mode = 0777) {
+    protected static function createFolder($dir, $mode = 0777) {
         if (!is_dir($dir)) {
             mkdir($dir, $mode, true);
         }

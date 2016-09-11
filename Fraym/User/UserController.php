@@ -17,7 +17,7 @@ class UserController extends \Fraym\Core
     /**
      * @var bool
      */
-    private $xml = false;
+    protected $xml = false;
 
     /**
      * @Inject
@@ -82,7 +82,7 @@ class UserController extends \Fraym\Core
     /**
      * @return bool
      */
-    private function checkLoginRedirectConfig()
+    protected function checkLoginRedirectConfig()
     {
         if ($this->user->isLoggedIn() &&
             isset($this->xml->onLoginSuccessful) &&
@@ -98,7 +98,7 @@ class UserController extends \Fraym\Core
                             $redirectToData
                         );
                         if ($redirectMenuItem) {
-                            $this->route->redirectToUrl($this->route->buildFullUrl($redirectMenuItem, true));
+                            $this->route->redirectToUrl($redirectMenuItem->getUrl(true));
                         }
                         break;
                     case 'url':
@@ -117,7 +117,7 @@ class UserController extends \Fraym\Core
     /**
      * @return bool
      */
-    private function checkLogoutRedirectConfig()
+    protected function checkLogoutRedirectConfig()
     {
         if ($this->user->isLoggedIn() === false &&
             isset($this->xml->onLogoutSuccessful) &&
@@ -133,7 +133,7 @@ class UserController extends \Fraym\Core
                             $redirectToData
                         );
                         if ($redirectMenuItem) {
-                            $this->route->redirectToUrl($this->route->buildFullUrl($redirectMenuItem, true));
+                            $this->route->redirectToUrl($redirectMenuItem->getUrl(true));
                         }
                         break;
                     case 'url':

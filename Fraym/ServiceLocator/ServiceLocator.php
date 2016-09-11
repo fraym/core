@@ -16,7 +16,7 @@ class ServiceLocator
     /**
      * @var null
      */
-    private $diContainer = null;
+    protected $diContainer = null;
 
     public function __construct()
     {

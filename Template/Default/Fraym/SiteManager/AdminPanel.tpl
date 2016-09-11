@@ -47,4 +47,5 @@
 	};
 	Fraym.Admin.EDIT_MODE = {if $inEditMode}true{else}false{/if};
 	Fraym.Admin.BLOCK_EDIT_SRC = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('block')->route}?locale_id={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
+	Fraym.InlineEditor.defaultSaveUrl = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('dynamicTemplateSaveInlineEditor')->route}';
 </script>

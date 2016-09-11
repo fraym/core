@@ -16,17 +16,17 @@ class Session
     /**
      * @var array
      */
-    private $onDestroy = [];
+    protected $onDestroy = [];
 
     /**
      * @var null
      */
-    private $savePath = null;
+    protected $savePath = null;
 
     /**
      * @var null
      */
-    private $sessionName = null;
+    protected $sessionName = null;
 
     public function __construct()
     {

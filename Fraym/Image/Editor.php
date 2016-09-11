@@ -19,7 +19,7 @@ class Editor
      * @var \Imagine\Imagick\Imagine
      * @Inject("Imagine")
      */
-    private $imagine = null;
+    protected $imagine = null;
 
     /**
      * @Inject
@@ -36,62 +36,62 @@ class Editor
     /**
      * @var null
      */
-    private $imageSource = null;
+    protected $imageSource = null;
 
     /**
      * @var null
      */
-    private $imageWidth = null;
+    protected $imageWidth = null;
 
     /**
      * @var null
      */
-    private $imageHeight = null;
+    protected $imageHeight = null;
 
     /**
      * @var null
      */
-    private $imageMaxWidth = null;
+    protected $imageMaxWidth = null;
 
     /**
      * @var null
      */
-    private $imageMaxHeight = null;
+    protected $imageMaxHeight = null;
 
     /**
      * @var string
      */
-    private $imageQuality = null;
+    protected $imageQuality = null;
 
     /**
      * @var string
      */
-    private $imageFormat = null;
+    protected $imageFormat = null;
 
     /**
      * @var bool
      */
-    private $imageOverride = false;
+    protected $imageOverride = false;
 
     /**
      * @var null
      */
-    private $imageHash = null;
+    protected $imageHash = null;
 
     /**
      * @var null
      */
-    private $metaData = null;
+    protected $metaData = null;
 
     /**
      * @var ImageInterface
      */
-    private $image = null;
+    protected $image = null;
 
     /**
      * @var null
      */
-    private $font = null;
+    protected $font = null;
 
     /**
      * @param $file
@@ -122,6 +122,10 @@ class Editor
 
         $this->imageWidth = $width;
         $this->imageHeight = $height;
+
+        if($this->imageFormat === null) {
+            $this->imageFormat = 'jpg';
+        }
 
         if ($this->font === null) {
             $this->setFontFile('Public/fonts/fraym/arial.ttf');
@@ -296,7 +300,7 @@ class Editor
      * @return $this
      * @throws \Exception
      */
-    private function openImage() {
+    protected function openImage() {
         if($this->image === null) {
             if($this->metaData) {
                 $this->image = $this->imagine->open($this->metaData->source);
@@ -498,7 +502,7 @@ class Editor
      * @param string $ext
      * @return string
      */
-    private function getImageSavePath($filename, $ext = 'jpg')
+    protected function getImageSavePath($filename, $ext = 'jpg')
     {
         $convertedImageFileName = trim($this->config->get('IMAGE_PATH')->value, '/');
 

@@ -18,7 +18,7 @@ class FormField
     /**
      * @var null
      */
-    private $_model = null;
+    protected $_model = null;
 
     /**
      * @Inject
@@ -94,7 +94,7 @@ class FormField
      * @param $formfield
      * @return array
      */
-    private function buildFormFieldArray($field, $formfield)
+    protected function buildFormFieldArray($field, $formfield)
     {
         $formfield = (array)$formfield;
         $formfield['label'] = $this->getLabel($field, $formfield['label']);
@@ -120,7 +120,7 @@ class FormField
      * @param string $defaultLabelText
      * @return mixed
      */
-    private function getLabel($prop, $defaultLabelText = '')
+    protected function getLabel($prop, $defaultLabelText = '')
     {
         $className = str_ireplace('\\', '_', $this->_model);
         return $this->translation->getTranslation(

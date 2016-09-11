@@ -56,7 +56,7 @@ class FileManager
      * @param $fileArray
      * @return array
      */
-    private function toDynatreeArray($fileArray)
+    protected function toDynatreeArray($fileArray)
     {
         $dynatree = [];
 
@@ -396,7 +396,7 @@ class FileManager
      * @param $filename
      * @return mixed
      */
-    private function createRelativePath($filename)
+    protected function createRelativePath($filename)
     {
         return str_replace(getcwd() . DIRECTORY_SEPARATOR, '', $filename);
     }
@@ -405,7 +405,7 @@ class FileManager
      * @param $filename
      * @return mixed|string
      */
-    private function createPublicPath($filename)
+    protected function createPublicPath($filename)
     {
         if (strpos($filename, '/') === 0) {
             return str_replace($_SERVER['DOCUMENT_ROOT'], '', $filename);
@@ -446,7 +446,7 @@ class FileManager
      * @param $file
      * @return string
      */
-    private function getFilePermissionString($file)
+    protected function getFilePermissionString($file)
     {
         $perms = fileperms($file);
         if (($perms & 0xC000) == 0xC000) {

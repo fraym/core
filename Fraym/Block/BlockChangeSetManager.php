@@ -133,21 +133,26 @@ class BlockChangeSetManager
 
     /**
      * @param Entity\Block $block
+     * @return bool
      */
     function clearMenuCache(Entity\Block $block) {
         if($block->menuItemTranslation) {
             $url = $block->menuItemTranslation->getUrl(true);
         } elseif($block->menuItem) {
             $url = $block->menuItem->getUrl(true);
+        } else {
+            return false;
         }
 
         $url = str_ireplace(['https://', 'http://'], '', $url);
 
         $this->cache->deleteCache($url);
+        return true;
     }
 
     /**
      * @param $block
+     * @return bool
      */
     public function undoBlock($block)
     {
@@ -158,6 +163,7 @@ class BlockChangeSetManager
             $this->db->remove($block);
         }
         $this->db->flush();
+        return true;
     }
 
     /**
