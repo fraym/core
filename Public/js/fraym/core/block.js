@@ -578,17 +578,17 @@ Fraym.Block = {
 			return;
 		}
 
-		$('#' + id + '-block-container-actionbar').find('a.add').click(function(e){
+		$('#' + id + '-block-container-actionbar').find('a.add:first').click(function(e){
 			e.preventDefault();
 			Fraym.Block.showBlockDialog(id);
 		});
 
-		$('#' + id + '-block-container-actionbar').find('a.paste').click(function(e){
+		$('#' + id + '-block-container-actionbar').find('a.paste:first').click(function(e){
 			e.preventDefault();
 			Fraym.Block.pasteBlock(id, false);
 		});
 
-		$('#' + id + '-block-container-actionbar').find('a.pasteref').click(function(e){
+		$('#' + id + '-block-container-actionbar').find('a.pasteref:first').click(function(e){
 			e.preventDefault();
 			Fraym.Block.pasteBlock(id, true);
 		});
@@ -779,6 +779,16 @@ Fraym.Block = {
 	},
 
 	replaceBlock: function (blockId, data) {
+		var refElementId = Fraym.getBaseWindow().$('[data-id=' + blockId + ']').attr('data-byref');
+
+		if(refElementId) {
+			var contentContainer = $(data).find('.block-container-content:first');
+			Fraym.getBaseWindow().$('[data-id=' + refElementId + ']').find('.block-container-content:first').replaceWith(contentContainer);
+		} else if(Fraym.getBaseWindow().$('[data-byref=' + blockId + ']').length) {
+			var contentContainer = $(data).find('.block-container-content:first');
+			Fraym.getBaseWindow().$('[data-byref=' + blockId + ']').find('.block-container-content:first').replaceWith(contentContainer);
+		}
+
 		Fraym.getBaseWindow().$('[data-id=' + blockId + ']').replaceWith(data);
 		Fraym.getBaseWindow().Fraym.Block.initBlockActions();
 	},
@@ -792,44 +802,44 @@ Fraym.Block = {
 		var showPasteRef = !(typeof $.cookie('copy') != 'undefined');
 
 		if(showPaste !== false) {
-			$('[data-id=' + id + ']').find('a.paste').hide();
+			$('[data-id=' + id + ']').find('a.paste:first').hide();
 		}
 
 		if(showPasteRef !== false) {
-			$('[data-id=' + id + ']').find('a.pasteref').hide();
+			$('[data-id=' + id + ']').find('a.pasteref:first').hide();
 		}
 
-		$('[data-id=' + id + ']').find('a.paste').click(function(e){
+		$('[data-id=' + id + ']').find('a.paste:first').click(function(e){
 			e.preventDefault();
             Fraym.Block.pasteBlock($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), false, $(this).parents(Fraym.$.BLOCK_HOLDER).first());
 		});
 
-		$('[data-id=' + id + ']').find('a.pasteref').click(function(e){
+		$('[data-id=' + id + ']').find('a.pasteref:first').click(function(e){
 			e.preventDefault();
             Fraym.Block.pasteBlock($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), true, $(this).parents(Fraym.$.BLOCK_HOLDER).first());
 		});
 
-		$('[data-id=' + id + ']').find('a.add-after').click(function(e){
+		$('[data-id=' + id + ']').find('a.add-after:first').click(function(e){
 			e.preventDefault();
             Fraym.Block.showBlockDialog($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), '', $(this).parents(Fraym.$.BLOCK_HOLDER).first());
 		});
 
-		$('[data-id=' + id + ']').find('a.edit').click(function(e){
+		$('[data-id=' + id + ']').find('a.edit:first').click(function(e){
 			e.preventDefault();
 			Fraym.Block.showBlockDialog($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), $(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
 		});
 
-		$('[data-id=' + id + ']').find('a.copy').click(function(e){
+		$('[data-id=' + id + ']').find('a.copy:first').click(function(e){
 			e.preventDefault();
 			Fraym.Block.copyBlock($(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
 		});
 
-		$('[data-id=' + id + ']').find('a.cut').click(function(e){
+		$('[data-id=' + id + ']').find('a.cut:first').click(function(e){
 			e.preventDefault();
 			Fraym.Block.cutBlock($(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
 		});
 
-		$('[data-id=' + id + ']').find('a.delete').click(function(e){
+		$('[data-id=' + id + ']').find('a.delete:first').click(function(e){
 			e.preventDefault();
 			Fraym.Block.deleteBlock($(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
 		});

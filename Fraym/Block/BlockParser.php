@@ -683,7 +683,7 @@ class BlockParser
      * @return null|string
      * @throws \Exception
      */
-    protected function getBlockTemplateString($xml)
+    public function getBlockTemplateString($xml)
     {
         $attr = strtolower($this->getXmlAttr($xml->children()->template, 'type'));
         $template = trim((string)$xml->children()->template);
