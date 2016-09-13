@@ -117,7 +117,6 @@ class Editor
      */
     public function createPlaceholder($text, $width, $height, $fontSize = '20', $color = '000', $backgroundColor = 'ddd') {
         $this->metaData = null;
-        $this->imageFormat = 'jpg';
         $this->imageSource = null;
 
         $this->imageWidth = $width;
@@ -179,6 +178,15 @@ class Editor
      */
     public function setImageSource($source) {
         $this->imageSource = $source;
+        $this->imageFormat = null;
+        $this->imageQuality = null;
+        $this->image = null;
+        $this->imageHash = null;
+        $this->imageWidth = null;
+        $this->imageHeight = null;
+        $this->imageMaxHeight = null;
+        $this->imageMaxWidth = null;
+        $this->imageOverride = false;
         $this->metaData = $this->getImageMetadata();
         return $this;
     }

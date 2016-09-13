@@ -223,22 +223,6 @@ class User extends \Fraym\Entity\BaseEntity
     }
 
     /**
-     * @return null|string
-     */
-    public function getDateCreated()
-    {
-        return $this->dateCreated ? $this->dateCreated->format('Y-m-d H:i:s') : null;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getLastLogin()
-    {
-        return $this->lastLogin ? $this->lastLogin->format('Y-m-d H:i:s') : null;
-    }
-
-    /**
      * @param $password
      * @return User
      */

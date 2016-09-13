@@ -997,7 +997,7 @@ class BlockParser
             throw new \Exception("Image method '{$method}' is not allowed.");
         }
 
-        $this->imageEditor = $this->imageEditor->setImageQuality($imageQuality)->setImageHash($xml->asXML());
+        $this->imageEditor = $this->imageEditor->setImageHash($xml->asXML())->setImageQuality($imageQuality);
 
         if($imageFormat) {
             $this->imageEditor = $this->imageEditor->setImageFormat($imageFormat);

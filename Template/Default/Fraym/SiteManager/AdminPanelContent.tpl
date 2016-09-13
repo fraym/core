@@ -11,21 +11,21 @@
             </li>
             <li class="user-status status-online" id="user-status">
                 <div class="profile-photo">
-                    <a href="javascript:void(0);" onclick="Fraym.getBaseWindow().location = '/fraym';">
-                        {if i('Fraym\User\User').getUserEntity().profilePicture}
-                            <block type="image" alt="{i('Fraym\User\User').getUserEntity().username}" height="65" width="65"
-                                   src="{i('Fraym\User\User').getUserEntity().profilePicture}" method="thumbnail"
+                    <a href="javascript:void(0);" onclick="Fraym.getBaseWindow().location = '{i('Fraym\Route\Route').getVirtualRoute('adminLogin').route}';">
+                        {if $user.profilePicture}
+                            <block type="image" alt="{$user.username}" height="65" width="65"
+                                   src="{$user.profilePicture}" method="thumbnail"
                                    mode="outbound"></block>
                         {else}
-                            <block type="image" alt="{i('Fraym\User\User').getUserEntity().username}" height="65" width="65"
+                            <block type="image" alt="{$user.username}" height="65" width="65"
                                    src="Public/images/fraym/profile-dummy.png" method="resize"></block>
                         {/if}
                     </a>
                 </div>
                 <div class="user">
-                    <strong>{i('Fraym\User\User').getUserEntity().username}</strong>
-                    {i('Fraym\User\User').getUserEntity().lastLogin = $date}
-                    <span class="role">{_('Last login')}:<br />{formatDateTime($date)}</span>
+                    <strong>{$user.username}</strong>
+                    <span class="role">{_('Last login')}:<br />{formatDateTime($user.lastLogin)}</span>
+                    <a class="user-logout" href="javascript:void(0);" onclick="Fraym.getBaseWindow().location = '{i('Fraym\Route\Route').getVirtualRoute('adminPanelLogout').route}';">{_('Logout')}</a>
                 </div>
             </li>
 

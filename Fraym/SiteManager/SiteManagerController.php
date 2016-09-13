@@ -77,6 +77,15 @@ class SiteManagerController extends \Fraym\Core
     }
 
     /**
+     * @Fraym\Annotation\Route("/fraym/admin/logout", name="adminPanelLogout", permission={"\Fraym\User\User"="isAdmin"})
+     * @return mixed
+     */
+    public function logoutUser() {
+        $this->user->logout();
+        $this->route->redirectToUrl('/');
+    }
+
+    /**
      * @Fraym\Annotation\Route("/fraym/admin/adminpanel", name="adminPanel", permission={"\Fraym\User\User"="isAdmin"})
      * @return mixed
      */
@@ -110,6 +119,7 @@ class SiteManagerController extends \Fraym\Core
         );
 
         $this->view->assign('extensions', $extensionSorted);
+        $this->view->assign('user', $this->user);
         $this->view->assign('inEditMode', $this->block->inEditMode());
 
         return $this->getIframeContent(

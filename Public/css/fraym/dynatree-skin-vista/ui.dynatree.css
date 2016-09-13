@@ -535,3 +535,6 @@ span.dynatree-drop-target.dynatree-drop-after a
     white-space: nowrap;
 }
 
+.file-item.new-file .file-name {
+	white-space: normal;
+}

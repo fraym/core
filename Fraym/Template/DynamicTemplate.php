@@ -201,6 +201,9 @@ class DynamicTemplate
      * @param string $config
      */
     public function createChangeSet(\Fraym\Block\Entity\Block $block, $config) {
+        if ($block->changeSets->count()) {
+            $block = $block->changeSets->last();
+        }
         $changeSet = new \Fraym\Block\Entity\ChangeSet();
         $changeSet->contentId = $block->contentId;
         $changeSet->name = $block->name;
