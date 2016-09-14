@@ -26,7 +26,8 @@ Fraym.InlineEditor = {
 
                         var url = $(this.element.$).parents('[data-inline-editor-save]').data('inline-editor-save') || Fraym.InlineEditor.defaultSaveUrl;
                         var field = $(this.element.$).data('inline-editor-field');
-                        var blockId = $(this.element.$).parents('[data-id]:first').data('id');
+                        var $block = $(this.element.$).parents('[data-id]:first');
+                        var blockId = $block.data('id');
 
                         data = Fraym.Block.replaceRteLink(data);
 
@@ -42,7 +43,7 @@ Fraym.InlineEditor = {
                             contentType: false,
                             type: 'post',
                             success:function (data, textStatus, jqXHR) {
-
+                                $block.addClass('changeset');
                             }
                         });
                     }

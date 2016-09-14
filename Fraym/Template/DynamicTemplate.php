@@ -213,7 +213,7 @@ class DynamicTemplate
         $changeSet->site = $block->site;
         $changeSet->menuItemTranslation = $block->menuTranslation;
         $changeSet->extension = $block->extension;
-        $changeSet->block = $block;
+        $changeSet->block = $block->block ?: $block;
         $changeSet->user = $block->user;
         $changeSet->config = $config;
         $changeSet->type = \Fraym\Block\Entity\ChangeSet::EDITED;
