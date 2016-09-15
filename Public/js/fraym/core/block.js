@@ -434,10 +434,6 @@ Fraym.Block = {
 					Fraym.getBaseWindow().$(Fraym.$.BLOCK_OVERLAY).dialog('close');
 				}
 				Fraym.Block.replaceRteBlockLinks();
-				/**
-				 * Reactivate inline editor, because of the element replace
-				 */
-				Fraym.getBaseWindow().Fraym.InlineEditor.init();
 			},
 			dataType: 'json'
 		});
@@ -507,6 +503,11 @@ Fraym.Block = {
 
 
 	initBlockActions: function () {
+
+		/**
+		 * Reactivate inline editor, because of the element replace
+		 */
+		Fraym.getBaseWindow().Fraym.InlineEditor.init();
 
 		$.each($(Fraym.$.BLOCK_HOLDER), function(){
 			if(!$(this).hasClass('action-added')) {
