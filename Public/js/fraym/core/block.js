@@ -756,9 +756,7 @@ Fraym.Block = {
 
 				if (json.success == true) {
 					if(op === 'cut') {
-						$('[data-id="' + id + '"]').effect('explode', {}, 500, function () {
-							$(this).remove();
-						});
+						$('[data-id="' + id + '"]').remove();
 					}
 
 					if(inserAfterElement) {
