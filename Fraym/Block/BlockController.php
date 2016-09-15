@@ -357,7 +357,7 @@ class BlockController extends \Fraym\Core
             $block,
             $blockParser->parse($blockXmlStringWithId),
             $blockParser->getXmlObjectFromString($blockXmlStringWithId),
-            true
+            false
         );
     }
 

@@ -665,7 +665,6 @@ Fraym.Block = {
 		Fraym.Block.dialogBlockId = currentBlockId;
 		Fraym.Block.insertAfterElement = insertAfterElement;
 		$(Fraym.$.BLOCK_DIALOG + ',' + Fraym.$.BLOCK_OVERLAY).remove();
-		$(Fraym.Block).unbind('blockConfigLoaded');
 		Fraym.Block.dialogWithIframe = Fraym.Block.showDialog({title: 'Block config', dialogClass: 'block-dialog'}, Fraym.Admin.BLOCK_EDIT_SRC);
 	},
 
@@ -685,7 +684,7 @@ Fraym.Block = {
 
 				Fraym.FileManager.initFilePathInput();
 
-				$(Fraym.Block).trigger('blockConfigLoaded', [extensionJsonData]).unbind('blockConfigLoaded');
+				$(Fraym.Block).trigger('blockConfigLoaded', [extensionJsonData]);
 				$(Fraym.$.BLOCK_TEMPLATE_SELECTION).removeAttr('disabled');
 			}
 		});
@@ -757,9 +756,7 @@ Fraym.Block = {
 
 				if (json.success == true) {
 					if(op === 'cut') {
-						$('[data-id="' + id + '"]').effect('explode', {}, 500, function () {
-							$(this).remove();
-						});
+						$('[data-id="' + id + '"]').remove();
 					}
 
 					if(inserAfterElement) {

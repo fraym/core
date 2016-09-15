@@ -702,7 +702,7 @@ class BlockParser
                 $templateContent = file_get_contents($templateFile);
                 return $templateContent;
             } elseif ($template != '') {
-                throw new \Exception('Templatefile do not exists or is not readable: ' . $template);
+                error_log('Template file not exists or is not readable: ' . $template);
             }
         }
         return null;
