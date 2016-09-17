@@ -587,14 +587,13 @@ class BlockParser
             }
             $editable = $this->getXmlAttr($xml, 'editable');
             if ($editable === true || $editable === null) {
-
-                // interleaved unique content elements -> pop last element
-                if (end($this->parsingBlockIds) == $this->getXmlAttr($xml, 'id')) {
-                    array_pop($this->parsingBlockIds);
-                }
-
                 $blockHtml = $this->blockController->addBlockInfo($block, $blockHtml, $xml, true);
             }
+        }
+
+        // interleaved unique content elements -> pop last element
+        if (end($this->parsingBlockIds) == $this->getXmlAttr($xml, 'id')) {
+            array_pop($this->parsingBlockIds);
         }
 
         // Disable cache on block attribute or on element level

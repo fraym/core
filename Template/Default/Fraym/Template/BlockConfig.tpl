@@ -12,7 +12,7 @@
                             {/foreach}
                         </optgroup>
                     {else}
-                        <option value="{$group}/{$file}"{if $blockConfig.dynamicTemplate == $file} selected="selected"{/if}>{$file}</option>
+                        <option value="{$opt}"{if $blockConfig.dynamicTemplate == $opt} selected="selected"{/if}>{$opt}</option>
                     {/if}
                 {/foreach}
             </select>
