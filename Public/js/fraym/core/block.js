@@ -250,7 +250,7 @@ Fraym.Block = {
 
 		// Reposition fixed elements for sidebar
 		$('*:not(#blockConfigMenu)').filter(function() {
-			return $(this).css("position") === 'fixed';
+			return $(this).css("position") === 'fixed' && parseFloat($(this).css("left")) < parseFloat($(this).css("right")) && parseFloat($(this).css("left")) < $('#blockConfigMenu').outerWidth();
 		}).addClass('fraym-fixed-position');
 
 		if(typeof $.cookie != 'undefined') {
