@@ -151,6 +151,9 @@ class InstallController extends \Fraym\Core
         return \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
     }
 
+    /**
+     * @return bool
+     */
     protected function install()
     {
         if ($this->writeConfig($this->_configFile)) {
@@ -302,6 +305,10 @@ class InstallController extends \Fraym\Core
         return $errors;
     }
 
+    /**
+     * @return $this
+     * @throws \Exception
+     */
     protected function setupMenuItemTemplate()
     {
         /**
@@ -319,39 +326,13 @@ class InstallController extends \Fraym\Core
         return $this;
     }
 
+    /**
+     * @param $site
+     * @return $this
+     */
     protected function addMenuItems($site)
     {
-        $gp = $this->request->getGPAsObject();
-
-        /**
-         * Root Page
-         */
-        $pageRoot = new \Fraym\Menu\Entity\MenuItem();
-        $pageRoot->site = $site;
-        $pageRoot->caching = true;
-        $pageRoot->https = false;
-        $pageRoot->checkPermission = false;
-        $pageRoot->is404 = false;
-
-        $pageRootTranslation = new \Fraym\Menu\Entity\MenuItemTranslation();
-        $pageRootTranslation->menuItem = $pageRoot;
-        $pageRootTranslation->visible = true;
-        $pageRootTranslation->active = true;
-        $pageRootTranslation->title = $this->translation->autoTranslation('Home', 'en', $this->locale->getLocale()->locale);
-        $pageRootTranslation->subtitle = $this->translation->autoTranslation(
-            'Welcome to my website.',
-            'en',
-            $this->locale->getLocale()->locale
-        );
-        $pageRootTranslation->url = "";
-
-        $pageRootTranslation->description = $this->translation->autoTranslation(
-            'My long website description',
-            'en',
-            $this->locale->getLocale()->locale
-        );
-        $pageRootTranslation->externalUrl = false;
-        $this->db->persist($pageRootTranslation);
+        $pageRoot = $this->db->getRepository('\Fraym\Menu\Entity\MenuItem')->findOneById(1);
 
         /**
          * 404 Page
@@ -385,6 +366,9 @@ class InstallController extends \Fraym\Core
         return $this;
     }
 
+    /**
+     * @return int
+     */
     protected function writeConfig()
     {
         $post = $this->request->getGPAsObject();
