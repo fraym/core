@@ -779,7 +779,7 @@ class Template
 
         $literals = [];
 
-        $content = preg_replace_callback('#({literal[^\}]*\}(.*)[^\{]*\{\/literal\})#is', function($matches) use (&$literals) {
+        $content = preg_replace_callback('#(\{literal\}\s*(((?!\[literal\]|\{\/literal\}).)+)\s*\{\/literal\})#is', function($matches) use (&$literals) {
             $hash = md5($matches[1]);
             $literals[$hash] = $matches[2];
             return '___FRAYM_LITERAL___' . $hash;
