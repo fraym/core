@@ -1199,11 +1199,15 @@ class Template
      * @param $file
      * @param string $group
      * @param null $key
+     * @param array $attributes
      */
-    public function addJsFile($file, $group = 'default', $key = null)
+    public function addJsFile($file, $group = 'default', $key = null, $attributes = [])
     {
         $hash = $key ? : md5($file);
-        $this->jsFiles[$group][$hash] = $file;
+        $this->jsFiles[$group][$hash] = [
+            'file' => $file,
+            'attributes' => $attributes,
+        ];
     }
 
     /**
@@ -1219,11 +1223,15 @@ class Template
      * @param $file
      * @param string $group
      * @param null $key
+     * @param array $attributes
      */
-    public function addCssFile($file, $group = 'default', $key = null)
+    public function addCssFile($file, $group = 'default', $key = null, $attributes = [])
     {
         $hash = $key ? : md5($file);
-        $this->cssFiles[$group][$hash] = $file;
+        $this->cssFiles[$group][$hash] = [
+            'file' => $file,
+            'attributes' => $attributes,
+        ];;
     }
 
     /**

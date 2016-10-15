@@ -37,12 +37,12 @@ Fraym.Admin = {
 
 			$(Fraym.$.BLOCK_CURRENT_INPUT).val(parentWindow.Fraym.Block.dialogBlockId);
 			$(Fraym.$.BLOCK_CURRENT_VIEW).html(parentWindow.Fraym.Block.dialogBlockId);
-			$('#selected-content-id').html(parentWindow.Fraym.Block.dialogContentId);
-			$('input[name=contentId]').val(parentWindow.Fraym.Block.dialogContentId);
-			$('input[name=contentId]').val(parentWindow.Fraym.Block.dialogContentId);
-			$('input[name="location"]').val(parentWindow.location.href.substring(parentWindow.location.protocol.length+2));
+			$(Fraym.$.BLOCK_CONTENT_ID).html(parentWindow.Fraym.Block.dialogContentId);
+			$(Fraym.$.BLOCK_CONTENT_ID_INPUT).val(parentWindow.Fraym.Block.dialogContentId);
+			$(Fraym.$.BLOCK_CONTENT_ID_INPUT).val(parentWindow.Fraym.Block.dialogContentId);
+			$(Fraym.$.BLOCK_LOCATION_INPUT).val(parentWindow.location.href.substring(parentWindow.location.protocol.length+2));
 
-			$('input[name=menuId]').val(parentWindow.menu_id);
+			$(Fraym.$.BLOCK_MENU_ID_INPUT).val(parentWindow.menu_id);
 			$(Fraym.$.BLOCK_MENU_TRANSLATION_ID).val(window.parent.menu_translation_id);
 			Fraym.Block.initIframeContent();
 		}

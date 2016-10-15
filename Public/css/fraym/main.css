@@ -248,6 +248,10 @@ body > .cke_float {
     margin-left: 15px;
 }
 
+[contenteditable]:focus {
+    outline: 1px dotted #ff2b23;
+}
+
 #blockConfigMenu iframe {
     background-color: transparent;
     height: 31px;
