@@ -1295,7 +1295,7 @@ class BlockParser
             $group = $this->getXmlAttr($xml, 'group') ? : 'default';
             $fileHash = null;
             $cssFiles = $this->template->getCssFiles($group);
-            $fileHash = md5(serialize('', $cssFiles));
+            $fileHash = md5(serialize($cssFiles));
             $consolidatedCssFilePath = rtrim(CONSOLIDATE_FOLDER, '/') . '/' . $fileHash . '.css';
             $consolidatedFileExists = is_file('Public' . $consolidatedCssFilePath);
             $consolidate = GLOBAL_CACHING_ENABLED ? $this->getXmlAttr($xml, 'consolidate') : false;
@@ -1422,7 +1422,7 @@ class BlockParser
             $group = $this->getXmlAttr($xml, 'group') ? : 'default';
 
             $jsFiles = $this->template->getJsFiles($group);
-            $fileHash = md5(serialize('', $jsFiles));
+            $fileHash = md5(serialize($jsFiles));
             $consolidatedJsFilePath = rtrim(CONSOLIDATE_FOLDER, '/') . '/' . $fileHash . '.js';
             $consolidatedFileExists = is_file('Public' . $consolidatedJsFilePath);
             $consolidate = GLOBAL_CACHING_ENABLED ? $this->getXmlAttr($xml, 'consolidate') : false;
