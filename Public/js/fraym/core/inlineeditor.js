@@ -20,6 +20,7 @@ Fraym.InlineEditor = {
             var instance = CKEDITOR.inline(this, {
                 removePlugins: removePlugins,
                 basicEntities: false,
+                autoParagraph: false,
                 on: {
                     blur: function( event ) {
                         var data = event.editor.getData();
@@ -58,5 +59,3 @@ Fraym.InlineEditor = {
         });
     }
 };
-
-Fraym.InlineEditor.init();

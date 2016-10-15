@@ -1295,12 +1295,14 @@ class BlockParser
             $group = $this->getXmlAttr($xml, 'group') ? : 'default';
             $fileHash = null;
             $cssFiles = $this->template->getCssFiles($group);
-            $fileHash = md5(implode('', $cssFiles));
+            $fileHash = md5(serialize('', $cssFiles));
             $consolidatedCssFilePath = rtrim(CONSOLIDATE_FOLDER, '/') . '/' . $fileHash . '.css';
             $consolidatedFileExists = is_file('Public' . $consolidatedCssFilePath);
             $consolidate = GLOBAL_CACHING_ENABLED ? $this->getXmlAttr($xml, 'consolidate') : false;
 
-            foreach ($cssFiles as $cssFile) {
+            foreach ($cssFiles as $cssFileData) {
+                $cssFile = $cssFileData['file'];
+
                 if ($isUrl = preg_match(
                     "#((http|https|ftp)://(\S*?\.\S*?))(\s|\;|\)|\]|\[|\{|\}|,|\"|'|:|\<|$|\.\s)#ie",
                     $cssFile
@@ -1317,7 +1319,7 @@ class BlockParser
                     if (!$isUrl) {
                         $fileHash = hash_file('crc32', 'Public/' . $file);
                     }
-                    $cssReplace .= '<link rel="stylesheet" type="text/css" href="' . $file . ($fileHash ? '?' . $fileHash : '') . '" />';
+                    $cssReplace .= '<link rel="stylesheet" type="text/css" href="' . $file . ($fileHash ? '?' . $fileHash : '') . '"' . (count($cssFileData['attributes']) ? ' ' . implode(' ', $cssFileData['attributes']) : '') . ' />';
                 }
             }
 
@@ -1420,12 +1422,15 @@ class BlockParser
             $group = $this->getXmlAttr($xml, 'group') ? : 'default';
 
             $jsFiles = $this->template->getJsFiles($group);
-            $fileHash = md5(implode('', $jsFiles));
+            $fileHash = md5(serialize('', $jsFiles));
             $consolidatedJsFilePath = rtrim(CONSOLIDATE_FOLDER, '/') . '/' . $fileHash . '.js';
             $consolidatedFileExists = is_file('Public' . $consolidatedJsFilePath);
             $consolidate = GLOBAL_CACHING_ENABLED ? $this->getXmlAttr($xml, 'consolidate') : false;
 
-            foreach ($jsFiles as $jsFile) {
+            foreach ($jsFiles as $jsFileData) {
+
+                $jsFile = $jsFileData['file'];
+
                 if ($isUrl = preg_match(
                     "#((http|https|ftp)://(\S*?\.\S*?))(\s|\;|\)|\]|\[|\{|\}|,|\"|'|:|\<|$|\.\s)#ie",
                     $jsFile
@@ -1442,7 +1447,8 @@ class BlockParser
                     if (!$isUrl) {
                         $fileHash = hash_file('crc32', 'Public/' . $file);
                     }
-                    $jsReplace .= '<script type="text/javascript" src="' . $file . ($fileHash ? '?' . $fileHash : '') . '"></script>';
+
+                    $jsReplace .= '<script type="text/javascript" src="' . $file . ($fileHash ? '?' . $fileHash : '') . '"' . (count($jsFileData['attributes']) ? ' ' . implode(' ', $jsFileData['attributes']) : '') . '></script>';
                 }
             }
 

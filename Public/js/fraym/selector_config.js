@@ -30,5 +30,9 @@ Fraym.$ = {
     BLOCK_DATETIME_INPUT: 'input.datetime',
     BLOCK_TABS: '#block-tabs',
     BLOCK_EXTENSION_INPUT: '#extension',
-    BLOCK_CONFIG_MENU: '#blockConfigMenu'
+    BLOCK_CONFIG_MENU: '#blockConfigMenu',
+    BLOCK_CONTENT_ID: '#selected-content-id',
+    BLOCK_CONTENT_ID_INPUT: 'input[name=contentId]',
+    BLOCK_LOCATION_INPUT: 'input[name="location"]',
+    BLOCK_MENU_ID_INPUT: 'input[name=menuId]'
 };

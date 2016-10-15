@@ -110,7 +110,7 @@ class Mail
      */
     public function useSMTP($host = 'localhost', $port = 25, $security = null, $username = null, $password = null)
     {
-        $this->transport = Swift_SmtpTransport::newInstance($host, $port, $security);
+        $this->transport = \Swift_SmtpTransport::newInstance($host, $port, $security);
         if ($username !== null) {
             $this->transport->setUsername($username);
         }
@@ -140,7 +140,7 @@ class Mail
      */
     public function embedFromFile($file)
     {
-        return $this->messageInstance->embed(Swift_Image::fromPath($file));
+        return $this->messageInstance->embed(\Swift_Image::fromPath($file));
     }
 
     /**

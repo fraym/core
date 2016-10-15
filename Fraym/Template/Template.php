@@ -779,7 +779,7 @@ class Template
 
         $literals = [];
 
-        $content = preg_replace_callback('#({literal[^\}]*\}(.*)[^\{]*\{\/literal\})#is', function($matches) use (&$literals) {
+        $content = preg_replace_callback('#(\{literal\}\s*(((?!\[literal\]|\{\/literal\}).)+)\s*\{\/literal\})#is', function($matches) use (&$literals) {
             $hash = md5($matches[1]);
             $literals[$hash] = $matches[2];
             return '___FRAYM_LITERAL___' . $hash;
@@ -1199,11 +1199,15 @@ class Template
      * @param $file
      * @param string $group
      * @param null $key
+     * @param array $attributes
      */
-    public function addJsFile($file, $group = 'default', $key = null)
+    public function addJsFile($file, $group = 'default', $key = null, $attributes = [])
     {
         $hash = $key ? : md5($file);
-        $this->jsFiles[$group][$hash] = $file;
+        $this->jsFiles[$group][$hash] = [
+            'file' => $file,
+            'attributes' => $attributes,
+        ];
     }
 
     /**
@@ -1219,11 +1223,15 @@ class Template
      * @param $file
      * @param string $group
      * @param null $key
+     * @param array $attributes
      */
-    public function addCssFile($file, $group = 'default', $key = null)
+    public function addCssFile($file, $group = 'default', $key = null, $attributes = [])
     {
         $hash = $key ? : md5($file);
-        $this->cssFiles[$group][$hash] = $file;
+        $this->cssFiles[$group][$hash] = [
+            'file' => $file,
+            'attributes' => $attributes,
+        ];;
     }
 
     /**
