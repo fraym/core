@@ -83,9 +83,12 @@ class DynamicTemplate
     {
         $blockConfig = $this->request->getGPAsObject();
         $customProperties = new \Fraym\Block\BlockXmlDom();
-        $element = $customProperties->createElement('dynamicTemplateConfig');
-        $element->appendChild($customProperties->createCDATASection(serialize($blockConfig->config)));
-        $customProperties->appendChild($element);
+
+        if(isset($blockConfig->config)) {
+            $element = $customProperties->createElement('dynamicTemplateConfig');
+            $element->appendChild($customProperties->createCDATASection(serialize($blockConfig->config)));
+            $customProperties->appendChild($element);
+        }
 
         $element = $customProperties->createElement('dynamicTemplate');
         $element->nodeValue = $blockConfig->dynamicTemplate;
