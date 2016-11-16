@@ -57,6 +57,7 @@
     {js('fraym/core/notification.js')}
     {js('fraym/core/menu.js')}
     {js('fraym/core/admin.js')}
+    {js('fraym/core/inlineeditor.js')}
     {js('fraym/selector_config.js')}
     {js('fraym/libs/modernizr.min.js')}
     {js('fraym/libs/dynatree/jquery.dynatree.js')}
@@ -101,6 +102,7 @@
         Fraym.FileManager.fileManagerSrc = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('fileManager')->route}?locale_id={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
         Fraym.Menu.selectionSrc = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('menuSelection')->route}?locale_id={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
         Fraym.locales = {json_encode($locales)};
+        Fraym.InlineEditor.defaultSaveUrl = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('dynamicTemplateSaveInlineEditor')->route}';
     </script>
 
 </head>

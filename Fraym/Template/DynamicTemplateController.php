@@ -139,7 +139,8 @@ class DynamicTemplateController extends \Fraym\Core
         }
 
         $obj = $this->dynamicTemplate->getTemplateXmlObject($template);
+        $objTemplate = $obj ? (string)$obj->template : '';
 
-        return $this->renderConfig((string)$obj->template, $locales, $variables);
+        return $this->renderConfig($objTemplate, $locales, $variables);
     }
 }
