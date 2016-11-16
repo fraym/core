@@ -501,6 +501,9 @@ Fraym.Block = {
 		$(window).keypress(saveBlockHotKey);
 	},
 
+	toggleActionBarSubmenu: function (e) {
+		$(e.target).parents('.block-holder-actionbar:first').find('.block-holder-actionbar-submenu').toggle();
+	},
 
 	initBlockActions: function () {
 
@@ -508,6 +511,16 @@ Fraym.Block = {
 		 * Reactivate inline editor, because of the element replace
 		 */
 		Fraym.getBaseWindow().Fraym.InlineEditor.init();
+
+		$('.block-holder-actionbar-submenu-toggle').unbind('click').click(function(e){
+			e.preventDefault();
+			e.stopPropagation();
+			Fraym.Block.toggleActionBarSubmenu(e);
+		});
+
+		$('body').unbind('click').click(function(){
+			$('.block-holder-actionbar-submenu').hide();
+		});
 
 		$.each($(Fraym.$.BLOCK_HOLDER), function(){
 			if(!$(this).hasClass('action-added')) {
@@ -529,6 +542,7 @@ Fraym.Block = {
 			connectWith: Fraym.$.BLOCK_VIEW_CONTAINER,
 			handle: Fraym.$.BLOCK_INFO,
 			tolerance:"pointer",
+			cancel: ".block-holder-actionbar",
 			cursorAt: { top:0, left: 0 },
 			start: function (ev, ui) {
 				start = true;
@@ -701,16 +715,16 @@ Fraym.Block = {
 			type: 'post',
 			success: function (json, textStatus, jqXHR) {
 				if (json.success == true) {
-					$('[data-id="' + id + '"]').effect('explode', {}, 500, function () {
+					$('[data-id="' + id + '"]').effect('fade', {}, 200, function () {
 						$(this).remove();
 					});
 
-					$('[data-byref="' + id + '"]').effect('explode', {}, 500, function () {
+					$('[data-byref="' + id + '"]').effect('fade', {}, 200, function () {
 						$(this).remove();
 					});
 
 					var byRefId = $('[data-id="' + id + '"]').data('byref');
-					$('[data-id="' + byRefId + '"]').effect('explode', {}, 500, function () {
+					$('[data-id="' + byRefId + '"]').effect('fade', {}, 200, function () {
 						$(this).remove();
 					});
 
@@ -729,11 +743,19 @@ Fraym.Block = {
 	},
 
 	cutBlock: function (id) {
-		$.cookie('cut', id, { path: '/' });
-		$.removeCookie('copy', { path: '/' });
-		$('[data-id="' + id + '"]').css('opacity', 0.5);
-		$('.block-container-actionbar, .block-holder').find('a.paste').show();
-		$('.block-container-actionbar, .block-holder').find('a.pasteref').hide();
+		if($.cookie('cut') == id) {
+			$.removeCookie('cut', { path: '/' });
+
+			$('[data-id="' + id + '"]').css('opacity', 1);
+			$('.block-container-actionbar, .block-holder').find('a.paste').hide();
+		} else {
+            $.cookie('cut', id, { path: '/' });
+            $.removeCookie('copy', { path: '/' });
+
+            $('[data-id="' + id + '"]').css('opacity', 0.5);
+            $('.block-container-actionbar, .block-holder').find('a.paste').show();
+            $('.block-container-actionbar, .block-holder').find('a.pasteref').hide();
+		}
 	},
 
 	pasteBlock: function (contentId, byRef, inserAfterElement) {
@@ -810,36 +832,43 @@ Fraym.Block = {
 		$('[data-id=' + id + ']').find('a.paste:first').click(function(e){
 			e.preventDefault();
             Fraym.Block.pasteBlock($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), false, $(this).parents(Fraym.$.BLOCK_HOLDER).first());
+			Fraym.Block.toggleActionBarSubmenu(e);
 		});
 
 		$('[data-id=' + id + ']').find('a.pasteref:first').click(function(e){
 			e.preventDefault();
             Fraym.Block.pasteBlock($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), true, $(this).parents(Fraym.$.BLOCK_HOLDER).first());
+			Fraym.Block.toggleActionBarSubmenu(e);
 		});
 
 		$('[data-id=' + id + ']').find('a.add-after:first').click(function(e){
 			e.preventDefault();
             Fraym.Block.showBlockDialog($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), '', $(this).parents(Fraym.$.BLOCK_HOLDER).first());
+			Fraym.Block.toggleActionBarSubmenu(e);
 		});
 
 		$('[data-id=' + id + ']').find('a.edit:first').click(function(e){
 			e.preventDefault();
 			Fraym.Block.showBlockDialog($(this).parents(Fraym.$.BLOCK_VIEW_CONTAINER).attr('id'), $(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
+			Fraym.Block.toggleActionBarSubmenu(e);
 		});
 
 		$('[data-id=' + id + ']').find('a.copy:first').click(function(e){
 			e.preventDefault();
 			Fraym.Block.copyBlock($(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
+			Fraym.Block.toggleActionBarSubmenu(e);
 		});
 
 		$('[data-id=' + id + ']').find('a.cut:first').click(function(e){
 			e.preventDefault();
 			Fraym.Block.cutBlock($(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
+			Fraym.Block.toggleActionBarSubmenu(e);
 		});
 
 		$('[data-id=' + id + ']').find('a.delete:first').click(function(e){
 			e.preventDefault();
 			Fraym.Block.deleteBlock($(this).parents(Fraym.$.BLOCK_HOLDER).data('id'));
+			Fraym.Block.toggleActionBarSubmenu(e);
 		});
 	}
 };

@@ -1,3 +1,12 @@
+Fraym 1.0.22, 2016-11-16
+----------------------
+- Change actionbar styles
+- Added inline image editing
+- Fix double click on a folder in the file manager
+- jQuery, CKEditor update
+- Change tanslation entity output in the data manager
+- Fix bootstrap styles
+
 Fraym 1.0.7, 2016-06-01
 ----------------------
 - Added image link

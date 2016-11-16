@@ -185,6 +185,7 @@ class MenuController extends \Fraym\Core
             $dynatree[] = [
                 'title' => $title,
                 'isFolder' => true,
+                'activate' => count($dynatree) === 0,
                 'key' => $menuItem->id,
                 'parent' => $menuItem->parent ? $menuItem->parent->id : false,
                 'children' => $this->toDynatreeArray($menuItem)

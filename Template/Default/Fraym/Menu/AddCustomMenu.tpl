@@ -4,6 +4,9 @@
             <label>
                 {_("Choose a website menu")}
             </label>
+            <p>
+                {_("Drag & Drop your menu items to the right side to build your own custom menu. If you left it empty the complete menu tree will be rendered.")}
+            </p>
             <section>
                 <div>
                     <select name="site" class="form-control" id="site" onchange="Fraym.Menu.getSiteMenu();">

@@ -198,7 +198,8 @@ class DynamicTemplate
 
     /**
      * @param \Fraym\Block\Entity\Block $block
-     * @param string $config
+     * @param $config
+     * @return \Fraym\Block\Entity\ChangeSet
      */
     public function createChangeSet(\Fraym\Block\Entity\Block $block, $config) {
         if ($block->changeSets->count()) {
@@ -220,6 +221,8 @@ class DynamicTemplate
 
         $this->db->persist($changeSet);
         $this->db->flush();
+
+        return $changeSet;
     }
 
     /**

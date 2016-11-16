@@ -17,10 +17,11 @@
 {js('fraym/libs/ckeditor/config.js')}
 {js('fraym/libs/ckeditor/adapters/jquery.js')}
 {js('fraym/main.js')}
-{js('fraym/core/inlineeditor.js')}
 {js('fraym/core/block.js')}
 {js('fraym/core/menu.js')}
 {js('fraym/core/admin.js')}
+{js('fraym/core/inlineeditor.js')}
+{js('fraym/core/filemanager.js')}
 {js('fraym/selector_config.js')}
 
 <div id="blockConfigMenu">
@@ -43,8 +44,20 @@
 			PasteBlock: '{_('Paste block', 'FRAYM_ADMIN_CONTEXT_MENU_PASTE_BLOCK')}',
 			PasteAsRefBlock: '{_('Paste as referance', 'FRAYM_ADMIN_CONTEXT_MENU_PASTE_REF_BLOCK')}',
 			DeleteBlock: '{_('Delete block', 'FRAYM_ADMIN_CONTEXT_MENU_DELETE_BLOCK')}'
+		},
+		Menu: {
+			DialogTitle: '{_('Select a menu entry', 'FRAYM_SELECT_MENU_DIALOG_TITLE')}'
+		},
+		FileManager: {
+			DialogTitle: '{_('File Manager', 'EXT_FILE_MANAGER')}',
+			DialogTitleSelect: '{_('File Manager - Select File / Folder', 'EXT_FILE_MANAGER_SELECT')}',
+			DeleteConfirm: '{_('Do you want to delete the file really?', 'FRAYM_FILEMANAGER_DELETE_CONFIRM')}'
 		}
 	};
+
+	Fraym.FileManager.fileViewerSrc = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('fileViewer')->route}?locale_id={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
+	Fraym.FileManager.fileManagerSrc = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('fileManager')->route}?locale_id={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
+
 	Fraym.Admin.EDIT_MODE = {if $inEditMode}true{else}false{/if};
 	Fraym.Admin.BLOCK_EDIT_SRC = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('block')->route}?locale_id={i('Fraym\Registry\Config')->get('ADMIN_LOCALE_ID')->value}';
 	Fraym.InlineEditor.defaultSaveUrl = '//{i('Fraym\Route\Route')->getSiteBaseURI(false)}{i('Fraym\Route\Route')->getVirtualRoute('dynamicTemplateSaveInlineEditor')->route}';

@@ -75,6 +75,6 @@ class Translation extends \Fraym\Entity\BaseEntity implements Translatable
      */
     public function __toString()
     {
-        return $this->key;
+        return $this->key . ' - "' . strip_tags($this->value) . '"';
     }
 }

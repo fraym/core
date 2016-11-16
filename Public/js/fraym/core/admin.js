@@ -88,7 +88,7 @@ Fraym.Admin = {
 		var $adminPanelIframe = $(Fraym.$.BLOCK_CONFIG_MENU).find('iframe');
 		if($adminPanelIframe.length) {
 			$adminPanelIframe.slimScroll({width: '250px', height: $(window).height()});
-			$adminPanelIframe.load(function(){
+			$adminPanelIframe.on('load', function(){
 				$adminPanelIframe.show();
 				var height = $adminPanelIframe.contents().find('body').height();
 				$adminPanelIframe.height(height);

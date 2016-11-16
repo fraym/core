@@ -85,14 +85,19 @@ Fraym.FileManager = {
 
 	initFilePathInput: function () {
 		$.each($('[data-filepath]:not(.fraym-file-select)'), function(){
+			$(this).addClass('fraym-file-select');
 			var $this = $(this).clone(true);
-			$this.addClass('fraym-file-select');
 
 			var $selectFileBtn = $('<i class="fa fa-hdd-o"></i>');
-			var $wrapper = $('<div class="fraym-file-input-wrapper"></div>');
-			$wrapper.append($this);
-			$wrapper.append($selectFileBtn);
-			$(this).replaceWith($wrapper);
+
+			if($this.prop("tagName") === 'SELECT' || $this.prop("tagName") === 'INPUT') {
+				var $wrapper = $('<div class="fraym-file-input-wrapper"></div>');
+				$wrapper.append($this);
+				$wrapper.append($selectFileBtn);
+				$(this).replaceWith($wrapper);
+			} else {
+				$(this).append($selectFileBtn);
+			}
 
 			$selectFileBtn.click(function(e){
 				e.preventDefault();
@@ -115,7 +120,7 @@ Fraym.FileManager = {
 						}
 						if(newVal !== $this.val()) {
 							$this.val(newVal);
-							$this.trigger('change');
+							$this.trigger('change', [newVal]);
 						}
 					}
 				});
@@ -125,7 +130,7 @@ Fraym.FileManager = {
 
 	open: function (fileFilter, singleFileSelect, currentFile, callback) {
 		var fileFilter = typeof fileFilter == 'undefined' ? '' : fileFilter;
-		var singleFileSelect = typeof singleFileSelect == 'undefined' ? '' : singleFileSelect;
+		var singleFileSelect = typeof singleFileSelect == 'undefined' ? 1 : singleFileSelect;
 		var callback = typeof callback == 'undefined' ? function () {
 		} : callback;
 
@@ -574,7 +579,10 @@ Fraym.FileManager = {
 	},
 
 	activateKey: function (activeKey) {
-		$(Fraym.FileManager.selectors.tree).dynatree("getTree").activateKey(activeKey).toggleExpand();
+		var activeItem = $(Fraym.FileManager.selectors.tree).dynatree("getTree").activateKey(activeKey);
+		if(activeItem) {
+			activeItem.toggleExpand();
+		}
 	},
 
 	getRootFromActiveNode: function () {
@@ -671,7 +679,7 @@ Fraym.FileManager = {
 				return false;
 			}).dblclick(function () {
 				if (obj.isDir) {
-					Fraym.FileManager.activateKey(obj.path + obj.directorySeparator + obj.name);
+					Fraym.FileManager.activateKey(obj.path);
 				} else {
 					$(Fraym.FileManager.selectors.selectedItems).removeClass('selected');
 					$(this).addClass('selected');

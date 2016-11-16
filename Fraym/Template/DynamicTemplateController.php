@@ -28,6 +28,12 @@ class DynamicTemplateController extends \Fraym\Core
 
     /**
      * @Inject
+     * @var \Fraym\Block\BlockController
+     */
+    protected $blockController;
+
+    /**
+     * @Inject
      * @var \Fraym\Block\Block
      */
     protected $block;
@@ -103,9 +109,9 @@ class DynamicTemplateController extends \Fraym\Core
         $newConfig = $this->blockParser->getBlockConfig($this->blockParser->removeXmlHeader($configXml->asXML()));
 
         // Save changes to new change set
-        $this->dynamicTemplate->createChangeSet($block, $newConfig);
+        $changeSet = $this->dynamicTemplate->createChangeSet($block, $newConfig);
 
-        $this->response->sendAsJson(['id' => $block->id]);
+        $this->response->sendAsJson(['blockId' => $block->id, 'data' => $this->blockController->prepareBlockOutput($changeSet)]);
     }
 
     /**
